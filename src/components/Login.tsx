@@ -54,7 +54,7 @@ return (
             animate={{ rotate: 0 }}
             className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-2xl flex items-center justify-center overflow-hidden shadow-2xl shadow-green-100 mb-6 sm:mb-8"
           >
-            <img src="/input_file_0.png" alt="Vendhan Logo" className="w-full h-full object-cover" />
+            <img src="/logo.svg" alt="Vendhan Logo" className="w-full h-full object-cover" />
           </motion.div>
           
           <h1 className="text-3xl sm:text-4xl font-display font-black text-slate-900 mb-2 tracking-tight uppercase">Vendhan Portal</h1>
