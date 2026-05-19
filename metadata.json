@@ -1,0 +1,6 @@
+{
+  "name": "Vendhan Sports Academy",
+  "description": "A modern, vibrant, and comprehensive sports academy management system for Vendhan Sports Academy, featuring athlete tracking, schedules, and elite training management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

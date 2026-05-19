@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  
+  --color-primary: #0EA5E9;
+  --color-secondary: #F97316;
+  --color-accent: #8B5CF6;
+  --color-success: #22C55E;
+  --color-warning: #FACC15;
+  --color-danger: #EF4444;
+  
+  --color-bento-bg: #f0f9ff;
+  --color-bento-card: #ffffff;
+  --color-bento-border: #e0f2fe;
+}
+
+@layer base {
+  body {
+    @apply bg-bento-bg text-slate-800 font-sans;
+  }
+}
+
+.bento-card {
+  @apply bg-bento-card border border-bento-border shadow-sm rounded-[2rem] transition-all duration-300;
+}
+
+.bento-card-hover {
+  @apply hover:shadow-xl hover:shadow-sky-100/50 hover:-translate-y-1;
+}
+
+.sporty-gradient {
+  background: linear-gradient(135deg, #0EA5E9 0%, #8B5CF6 100%);
+}
+
+.vibrant-orange {
+  background: linear-gradient(135deg, #F97316 0%, #FACC15 100%);
+}
+
+.vibrant-green {
+  background: linear-gradient(135deg, #22C55E 0%, #10B981 100%);
+}
+
+.sidebar-gradient {
+  @apply bg-white border-r border-sky-100;
+}
+
