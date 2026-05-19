@@ -1,104 +1,145 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
+
+// Setup crypto for Node 16 compatibility (needed for Vite)
+import { webcrypto } from "crypto";
+if (!globalThis.crypto) {
+  globalThis.crypto = webcrypto as Crypto;
+}
+
+import { createServer as createViteServer } from "vite";
 
 dotenv.config();
 
+// Skip mongoose connection in development if not available
+let mongoose: any;
+try {
+  mongoose = await import("mongoose");
+  console.log("Mongoose successfully imported");
+} catch (e) {
+  console.log("Mongoose not available, running without database");
+  console.error("Mongoose import error:", e);
+}
+
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://vendhan:vendhan123@cluster0.irfa0ip.mongodb.net/?appName=Cluster0";
 
-// --- Database Schemas ---
-const studentSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  name: String, // fallback
-  sport: String,
-  sportsJoined: [String],
-  age: Number,
-  gender: String,
-  parentName: String,
-  phone: String,
-  address: String,
-  joiningDate: { type: Date, default: Date.now },
-  feesStatus: { type: String, default: "Pending" },
-  attendance: { type: Number, default: 0 }
-});
+// --- Database Models (only if mongoose is available) ---
+let Student, Coach, Attendance, Payment, Sport, Schedule, Event;
 
-const coachSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  sport: { type: String, required: true },
-  experience: String,
-  phone: String,
-  email: String,
-  salary: { type: Number, default: 0 },
-  joiningDate: { type: Date, default: Date.now },
-  workingHours: String
-});
-
-const attendanceSchema = new mongoose.Schema({
-  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
-  coachId: { type: mongoose.Schema.Types.ObjectId, ref: 'Coach' },
-  type: { type: String, enum: ['student', 'coach'], required: true },
-  date: { type: String, required: true }, // Format: YYYY-MM-DD
-  status: { type: String, enum: ['present', 'absent', 'leave'], required: true }
-});
-
-const paymentSchema = new mongoose.Schema({
-  coachId: { type: mongoose.Schema.Types.ObjectId, ref: 'Coach', required: true },
-  amount: { type: Number, required: true },
-  date: { type: Date, default: Date.now },
-  month: String, // e.g. "May 2024"
-  status: { type: String, enum: ['Paid', 'Pending'], default: 'Paid' },
-  notes: String
-});
-
-const sportSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  coach: String,
-  timing: String,
-  location: String,
-  maxStudents: { type: Number, default: 30 },
-  currentStudents: { type: Number, default: 0 },
-  fees: { type: Number, default: 0 },
-  image: String
-});
-
-const scheduleSchema = new mongoose.Schema({
-  day: { type: String, required: true },
-  time: { type: String, required: true },
-  activity: { type: String, required: true },
-  coach: String,
-  location: String
-});
-
-const eventSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  teamA: String,
-  teamB: String,
-  date: String,
-  time: String,
-  venue: String,
-  type: { type: String, default: 'Tournament' }, // Tournament, Ceremony, Victory, etc.
-  color: String
-});
-
-const Student = mongoose.model("Student", studentSchema);
-const Coach = mongoose.model("Coach", coachSchema);
-const Attendance = mongoose.model("Attendance", attendanceSchema);
-const Payment = mongoose.model("Payment", paymentSchema);
-const Sport = mongoose.model("Sport", sportSchema);
-const Schedule = mongoose.model("Schedule", scheduleSchema);
-const Event = mongoose.model("Event", eventSchema);
+async function connectMongo() {
+  if (mongoose) {
+    try {
+      await mongoose.connect(MONGODB_URI);
+      console.log("Connected to MongoDB");
+      
+      // Define schemas and models after successful connection
+      const { Schema } = mongoose;
+      
+      // Student Schema
+      const studentSchema = new Schema({
+        name: { type: String, required: true },
+        age: { type: Number },
+        gender: { type: String },
+        phone: { type: String },
+        email: { type: String },
+        address: { type: String },
+        emergencyContact: { type: String },
+        emergencyPhone: { type: String },
+        dateJoined: { type: Date, default: Date.now },
+        active: { type: Boolean, default: true }
+      }, { timestamps: true });
+      
+      // Coach Schema
+      const coachSchema = new Schema({
+        name: { type: String, required: true },
+        age: { type: Number },
+        gender: { type: String },
+        phone: { type: String },
+        email: { type: String },
+        specialization: { type: String },
+        experience: { type: Number },
+        dateJoined: { type: Date, default: Date.now },
+        active: { type: Boolean, default: true }
+      }, { timestamps: true });
+      
+      // Attendance Schema
+      const attendanceSchema = new Schema({
+        studentId: { type: Schema.Types.ObjectId, ref: 'Student' },
+        coachId: { type: Schema.Types.ObjectId, ref: 'Coach' },
+        date: { type: Date, required: true },
+        status: { type: String, required: true }, // present, absent, late
+        type: { type: String, required: true, enum: ['student', 'coach'] }
+      }, { timestamps: true });
+      
+      // Payment Schema
+      const paymentSchema = new Schema({
+        coachId: { type: Schema.Types.ObjectId, ref: 'Coach', required: true },
+        amount: { type: Number, required: true },
+        month: { type: String, required: true }, // e.g., "2026-05"
+        year: { type: Number, required: true },
+        paymentDate: { type: Date, default: Date.now },
+        method: { type: String }, // cash, bank, etc.
+        status: { type: String, default: 'paid' } // paid, pending, failed
+      }, { timestamps: true });
+      
+      // Sport Schema
+      const sportSchema = new Schema({
+        name: { type: String, required: true },
+        coach: { type: String, required: true },
+        timing: { type: String, required: true },
+        location: { type: String, required: true },
+        maxStudents: { type: Number, required: true },
+        currentStudents: { type: Number, default: 0 },
+        fees: { type: Number, required: true },
+        image: { type: String }
+      }, { timestamps: true });
+      
+      // Schedule Schema
+      const scheduleSchema = new Schema({
+        title: { type: String, required: true },
+        description: { type: String },
+        date: { type: Date, required: true },
+        startTime: { type: String, required: true },
+        endTime: { type: String, required: true },
+        location: { type: String },
+        sport: { type: String },
+        coach: { type: String },
+        maxParticipants: { type: Number },
+        currentParticipants: { type: Number, default: 0 }
+      }, { timestamps: true });
+      
+      // Event Schema
+      const eventSchema = new Schema({
+        title: { type: String, required: true },
+        description: { type: String },
+        date: { type: Date, required: true },
+        startTime: { type: String, required: true },
+        endTime: { type: String, required: true },
+        location: { type: String },
+        type: { type: String }, // competition, workshop, exhibition, etc.
+        image: { type: String },
+        isActive: { type: Boolean, default: true }
+      }, { timestamps: true });
+      
+      // Create models
+      Student = mongoose.model('Student', studentSchema);
+      Coach = mongoose.model('Coach', coachSchema);
+      Attendance = mongoose.model('Attendance', attendanceSchema);
+      Payment = mongoose.model('Payment', paymentSchema);
+      Sport = mongoose.model('Sport', sportSchema);
+      Schedule = mongoose.model('Schedule', scheduleSchema);
+      Event = mongoose.model('Event', eventSchema);
+      
+      console.log("Database models initialized");
+    } catch (err) {
+      console.error("MongoDB connection error:", err);
+    }
+  }
+}
 
 async function startServer() {
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log("Connected to MongoDB");
-  } catch (err) {
-    console.error("MongoDB connection error:", err);
-  }
-
+  await connectMongo();
   const app = express();
   const PORT = 3000;
 
@@ -121,6 +162,7 @@ async function startServer() {
   // Students CRUD
   app.get("/api/students", async (req, res) => {
     try {
+      if (!Student) return res.json([]);
       const students = await Student.find();
       res.json(students);
     } catch (err) {
@@ -130,6 +172,7 @@ async function startServer() {
 
   app.post("/api/students", async (req, res) => {
     try {
+      if (!Student) return res.status(503).json({ error: "Database not available" });
       const newStudent = new Student(req.body);
       await newStudent.save();
       res.status(201).json(newStudent);
@@ -140,6 +183,7 @@ async function startServer() {
 
   app.put("/api/students/:id", async (req, res) => {
     try {
+      if (!Student) return res.status(503).json({ error: "Database not available" });
       const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
       if (!student) return res.status(404).json({ message: "Student not found" });
       res.json(student);
@@ -150,9 +194,9 @@ async function startServer() {
 
   app.delete("/api/students/:id", async (req, res) => {
     try {
+      if (!Student) return res.status(503).json({ error: "Database not available" });
       const student = await Student.findByIdAndDelete(req.params.id);
       if (!student) return res.status(404).json({ message: "Student not found" });
-      // Clean up attendance
       await Attendance.deleteMany({ studentId: req.params.id, type: 'student' });
       res.json({ message: "Student deleted" });
     } catch (err) {
@@ -163,6 +207,7 @@ async function startServer() {
   // Coaches CRUD
   app.get("/api/coaches", async (req, res) => {
     try {
+      if (!Coach) return res.json([]);
       const coaches = await Coach.find();
       res.json(coaches);
     } catch (err) {
@@ -172,6 +217,7 @@ async function startServer() {
 
   app.post("/api/coaches", async (req, res) => {
     try {
+      if (!Coach) return res.status(503).json({ error: "Database not available" });
       const coach = new Coach(req.body);
       await coach.save();
       res.status(201).json(coach);
@@ -182,6 +228,7 @@ async function startServer() {
 
   app.put("/api/coaches/:id", async (req, res) => {
     try {
+      if (!Coach) return res.status(503).json({ error: "Database not available" });
       const coach = await Coach.findByIdAndUpdate(req.params.id, req.body, { new: true });
       res.json(coach);
     } catch (err) {
@@ -191,6 +238,7 @@ async function startServer() {
 
   app.delete("/api/coaches/:id", async (req, res) => {
     try {
+      if (!Coach) return res.status(503).json({ error: "Database not available" });
       await Coach.findByIdAndDelete(req.params.id);
       await Attendance.deleteMany({ coachId: req.params.id, type: 'coach' });
       res.json({ message: "Coach deleted" });
@@ -202,6 +250,7 @@ async function startServer() {
   // Attendance CRUD
   app.get("/api/attendance", async (req, res) => {
     try {
+      if (!Attendance) return res.json([]);
       const type = req.query.type as "student" | "coach";
       const filter = type ? { type } : {};
       const records = await Attendance.find(filter);
@@ -213,6 +262,7 @@ async function startServer() {
 
   app.post("/api/attendance", async (req, res) => {
     try {
+      if (!Attendance) return res.status(503).json({ error: "Database not available" });
       const { studentId, coachId, date, status, type } = req.body;
       const query = type === 'student' ? { studentId, date, type } : { coachId, date, type };
       const record = await Attendance.findOneAndUpdate(
@@ -229,6 +279,7 @@ async function startServer() {
   // Payments CRUD
   app.get("/api/payments", async (req, res) => {
     try {
+      if (!Payment) return res.json([]);
       const payments = await Payment.find().populate('coachId');
       res.json(payments);
     } catch (err) {
@@ -238,6 +289,7 @@ async function startServer() {
 
   app.post("/api/payments", async (req, res) => {
     try {
+      if (!Payment) return res.status(503).json({ error: "Database not available" });
       const payment = new Payment(req.body);
       await payment.save();
       res.status(201).json(payment);
@@ -249,6 +301,7 @@ async function startServer() {
   // Sports CRUD
   app.get("/api/sports", async (req, res) => {
     try {
+      if (!Sport) return res.json([]);
       const sports = await Sport.find();
       res.json(sports);
     } catch (err) {
@@ -258,6 +311,7 @@ async function startServer() {
 
   app.post("/api/sports", async (req, res) => {
     try {
+      if (!Sport) return res.status(503).json({ error: "Database not available" });
       const sport = new Sport(req.body);
       await sport.save();
       res.status(201).json(sport);
@@ -268,6 +322,7 @@ async function startServer() {
 
   app.put("/api/sports/:id", async (req, res) => {
     try {
+      if (!Sport) return res.status(503).json({ error: "Database not available" });
       const sport = await Sport.findByIdAndUpdate(req.params.id, req.body, { new: true });
       res.json(sport);
     } catch (err) {
@@ -277,16 +332,18 @@ async function startServer() {
 
   app.delete("/api/sports/:id", async (req, res) => {
     try {
+      if (!Sport) return res.status(503).json({ error: "Database not available" });
       await Sport.findByIdAndDelete(req.params.id);
       res.json({ message: "Sport deleted" });
     } catch (err) {
-      res.status(500).json({ error: "Failed to delete sport" });
-    }
+       res.status(500).json({ error: "Failed to delete sport" });
+     }
   });
 
   // Schedule CRUD
   app.get("/api/schedules", async (req, res) => {
     try {
+      if (!Schedule) return res.json([]);
       const schedules = await Schedule.find();
       res.json(schedules);
     } catch (err) {
@@ -296,6 +353,7 @@ async function startServer() {
 
   app.post("/api/schedules", async (req, res) => {
     try {
+      if (!Schedule) return res.status(503).json({ error: "Database not available" });
       const schedule = new Schedule(req.body);
       await schedule.save();
       res.status(201).json(schedule);
@@ -306,6 +364,7 @@ async function startServer() {
 
   app.put("/api/schedules/:id", async (req, res) => {
     try {
+      if (!Schedule) return res.status(503).json({ error: "Database not available" });
       const schedule = await Schedule.findByIdAndUpdate(req.params.id, req.body, { new: true });
       res.json(schedule);
     } catch (err) {
@@ -315,16 +374,18 @@ async function startServer() {
 
   app.delete("/api/schedules/:id", async (req, res) => {
     try {
+      if (!Schedule) return res.status(503).json({ error: "Database not available" });
       await Schedule.findByIdAndDelete(req.params.id);
       res.json({ message: "Schedule deleted" });
     } catch (err) {
       res.status(500).json({ error: "Failed to delete schedule" });
     }
   });
-  
+   
   // Events CRUD
   app.get("/api/events", async (req, res) => {
     try {
+      if (!Event) return res.json([]);
       const events = await Event.find();
       res.json(events);
     } catch (err) {
@@ -334,6 +395,7 @@ async function startServer() {
 
   app.post("/api/events", async (req, res) => {
     try {
+      if (!Event) return res.status(503).json({ error: "Database not available" });
       const event = new Event(req.body);
       await event.save();
       res.status(201).json(event);
@@ -344,6 +406,7 @@ async function startServer() {
 
   app.delete("/api/events/:id", async (req, res) => {
     try {
+      if (!Event) return res.status(503).json({ error: "Database not available" });
       await Event.findByIdAndDelete(req.params.id);
       res.json({ message: "Event deleted" });
     } catch (err) {
@@ -359,8 +422,14 @@ async function startServer() {
   // --- Vite Middleware ---
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        hmr: false
+      },
       appType: "spa",
+      optimizeDeps: {
+        include: []
+      }
     });
     app.use(vite.middlewares);
   } else {

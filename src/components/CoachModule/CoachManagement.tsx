@@ -73,17 +73,17 @@ export function CoachManagement({ isAdmin = false }: CoachManagementProps) {
   };
 
   return (
-    <div className="flex flex-col gap-8 h-full font-sans">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-6 md:gap-8 h-full font-sans">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Coach Directory</h2>
-          <p className="text-slate-500 font-medium">Professional staff and training assignments</p>
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Coach Directory</h2>
+          <p className="text-slate-500 font-medium text-sm md:text-base">Professional staff and training assignments</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col xs:flex-row gap-2 md:gap-4">
            {isAdmin && (
              <button 
                onClick={() => setShowAddModal(true)}
-               className="bg-indigo-600 text-white px-8 py-3.5 rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-transform active:scale-95"
+               className="bg-indigo-600 text-white px-5 md:px-8 py-2.5 md:py-3.5 rounded-2xl md:rounded-3xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-transform active:scale-95 min-h-[40px] md:min-h-[44px]"
              >
                + RECRUIT COACH
              </button>
@@ -91,81 +91,81 @@ export function CoachManagement({ isAdmin = false }: CoachManagementProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {loading ? (
-          [1, 2].map(i => <div key={i} className="h-64 bento-card animate-pulse shadow-sm" />)
+          [1, 2].map(i => <div key={i} className="h-60 md:h-64 bento-card animate-pulse shadow-sm" />)
         ) : coaches.map((coach, i) => (
           <motion.div 
             key={coach._id || i}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="bento-card p-8 group bento-card-hover relative"
+            className="bento-card p-4 md:p-8 group bento-card-hover relative"
           >
             {isAdmin && (
               <button 
                 onClick={() => deleteCoach(coach._id)}
-                className="absolute top-6 right-6 p-2 text-slate-200 hover:text-red-500 transition-colors z-20"
+                className="absolute top-4 md:top-6 right-4 md:right-6 p-1.5 md:p-2 text-slate-200 hover:text-red-500 transition-colors z-20"
               >
-                <Trash2 size={18} />
+                <Trash2 size={16} className="md:w-4.5 md:h-4.5" />
               </button>
             )}
-            <div className="flex gap-8 items-start relative z-10">
-              <div className="w-24 h-24 rounded-3xl bg-sky-50 p-1 border border-sky-100 shadow-inner">
+            <div className="flex flex-col xs:flex-row gap-4 md:gap-8 items-start relative z-10">
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-sky-50 p-1 border border-sky-100 shadow-inner">
                 <img 
                   src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${coach.name}`} 
                   alt="avatar" 
-                  className="w-full h-full object-cover rounded-2xl"
+                  className="w-full h-full object-cover rounded-xl md:rounded-2xl"
                 />
               </div>
               
-              <div className="flex-1">
-                <div className="flex justify-between items-start mb-4">
+              <div className="flex-1 w-full">
+                <div className="flex flex-col xs:flex-row xs:justify-between xs:items-start mb-3 md:mb-4 gap-2 xs:gap-0">
                   <div>
-                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">{coach.name}</h3>
+                    <h3 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight">{coach.name}</h3>
                     <span className="px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-purple-100">{coach.sport} Expert</span>
                   </div>
-                  {isAdmin && <button className="p-2 text-slate-300 hover:text-primary transition-colors"><Sliders size={20} /></button>}
+                  {isAdmin && <button className="p-2 text-slate-300 hover:text-primary transition-colors self-start xs:self-auto"><Sliders size={18} className="md:w-5 md:h-5" /></button>}
                 </div>
 
-                <div className="grid grid-cols-2 gap-y-4 gap-x-8">
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-y-3 md:gap-y-4 gap-x-4 md:gap-x-8">
                   <div className="flex items-center gap-2 text-slate-500">
-                    <Award size={16} className="text-sky-300" />
-                    <span className="text-xs font-bold">{coach.experience} Exp.</span>
+                    <Award size={16} className="md:w-4.5 md:h-4.5 text-sky-300" />
+                    <span className="text-xs md:text-sm font-bold">{coach.experience} Exp.</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-500">
-                    <Phone size={16} className="text-sky-300" />
-                    <span className="text-xs font-bold">{coach.phone}</span>
+                    <Phone size={16} className="md:w-4.5 md:h-4.5 text-sky-300" />
+                    <span className="text-xs md:text-sm font-bold">{coach.phone}</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-500">
-                    <Clock size={16} className="text-sky-300" />
-                    <span className="text-xs font-bold whitespace-nowrap">{coach.workingHours}</span>
+                    <Clock size={16} className="md:w-4.5 md:h-4.5 text-sky-300" />
+                    <span className="text-xs md:text-sm font-bold">{coach.workingHours}</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-500">
-                    <Calendar size={16} className="text-sky-300" />
-                    <span className="text-xs font-bold uppercase tracking-widest text-[10px]">Since {coach.joiningDate}</span>
+                    <Calendar size={16} className="md:w-4.5 md:h-4.5 text-sky-300" />
+                    <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-[10px] md:text-[11px]">Since {coach.joiningDate}</span>
                   </div>
                 </div>
 
                 {isAdmin && (
-                  <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
+                  <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-50 flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 xs:gap-0">
                     <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Salary</p>
+                      <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Salary</p>
                       <div className="flex items-center gap-1 text-slate-800">
-                        <DollarSign size={16} className="text-green-500 font-black" />
-                        <span className="text-lg font-black">{coach.salary}</span>
+                        <DollarSign size={16} className="text-green-500 font-black md:w-4.5 md:h-4.5" />
+                        <span className="text-lg md:text-xl font-black">{coach.salary}</span>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col xs:flex-row gap-2">
                        <button 
                          onClick={() => navigate('/attendance/coaches')}
-                         className="px-4 py-2 rounded-xl text-[10px] font-black bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition-colors uppercase tracking-widest"
+                         className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[10px] font-black bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition-colors uppercase tracking-widest min-h-[36px]"
                        >
                          Attendance
                        </button>
                        <button 
                          onClick={() => navigate('/coaches/pay')}
-                         className="px-4 py-2 rounded-xl text-[10px] font-black bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors uppercase tracking-widest"
+                         className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[10px] font-black bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors uppercase tracking-widest min-h-[36px]"
                        >
                          Payrolls
                        </button>

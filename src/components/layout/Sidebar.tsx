@@ -12,7 +12,8 @@ import {
   CreditCard,
   Wallet,
   ClipboardCheck,
-  Image as ImageIcon
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -38,24 +39,48 @@ const adminMenuItems = [
 
 interface SidebarProps {
   isAdmin: boolean;
+  mobileOpen?: boolean;
+  onClose?: () => void;
 }
 
-export function Sidebar({ isAdmin }: SidebarProps) {
+export function Sidebar({ isAdmin, mobileOpen = false, onClose }: SidebarProps) {
   const menuItems = isAdmin ? [...publicMenuItems, ...adminMenuItems] : publicMenuItems;
 
   return (
-    <aside className="w-64 h-screen bg-white border-r border-sky-100 sticky top-0 flex flex-col p-6 overflow-y-auto">
-      <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-green-100">
-          <img src="/input_file_0.png" alt="Vendhan Logo" className="w-full h-full object-cover" />
+    <>
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      <aside className={cn(
+        "w-64 h-screen bg-white border-r border-sky-100 sticky top-0 flex flex-col p-6 overflow-y-auto transition-transform duration-300 z-50",
+        "md:translate-x-0",
+        mobileOpen ? "fixed translate-x-0" : "fixed -translate-x-full md:translate-x-0"
+      )}>
+        <div className="flex items-center justify-between mb-10 px-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-green-100">
+              <img src="/logo.svg" alt="Vendhan Logo" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h1 className="font-display font-black text-base leading-tight text-sky-900 tracking-tight">
+                VENDHAN
+              </h1>
+              <p className="text-[9px] font-bold text-green-500 uppercase tracking-widest">Sports Academy</p>
+            </div>
+          </div>
+          <button 
+            onClick={onClose}
+            className="md:hidden p-1 rounded-lg hover:bg-slate-100"
+            aria-label="Close menu"
+          >
+            <X size={20} className="text-slate-600" />
+          </button>
         </div>
-        <div>
-          <h1 className="font-display font-black text-xl leading-tight text-sky-900 tracking-tight">
-            VENDHAN
-          </h1>
-          <p className="text-[10px] font-bold text-green-500 uppercase tracking-widest">Sports Academy</p>
-        </div>
-      </div>
 
       <nav className="flex-1 space-y-1">
         {menuItems.map((item) => (
@@ -102,6 +127,7 @@ export function Sidebar({ isAdmin }: SidebarProps) {
           </NavLink>
         )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

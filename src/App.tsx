@@ -21,12 +21,13 @@ import { Settings } from './components/Settings';
 import { AdminPanel } from './components/Admin/AdminPanel';
 import { WeeklySchedule } from './components/Admin/WeeklySchedule';
 import { motion, AnimatePresence } from 'motion/react';
-import { CreditCard } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return localStorage.getItem('auth') === 'true';
   });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogin = (status: boolean) => {
     setIsAuthenticated(status);
@@ -34,11 +35,30 @@ export default function App() {
     else localStorage.removeItem('auth');
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <Router>
       <div className="flex min-h-screen bg-bento-bg">
-        <Sidebar isAdmin={isAuthenticated} />
-        <main className="flex-1 p-8 overflow-x-hidden">
+        <Sidebar isAdmin={isAuthenticated} mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden safe-area-inset">
+          <div className="md:hidden flex justify-between items-center mb-4 px-2">
+            <button 
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-3 rounded-xl bg-white shadow-md border border-sky-100 min-h-[44px] min-w-[44px]"
+              aria-label="Open menu"
+            >
+              <Menu size={24} className="text-slate-700" />
+            </button>
+          </div>
           <AnimatePresence mode="wait">
             <Routes>
               {/* Public Routes */}

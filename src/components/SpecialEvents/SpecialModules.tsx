@@ -18,41 +18,41 @@ export function SummerCamp() {
   }, []);
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 md:space-y-8 pb-4 md:pb-12">
       {/* Hero Banner */}
-      <div className="vibrant-orange rounded-[40px] p-12 text-white relative overflow-hidden shadow-2xl shadow-orange-100 min-h-[400px] flex flex-col justify-center">
-        <Sun className="absolute top-[-40px] right-[-40px] w-80 h-80 text-white/10" />
+      <div className="vibrant-orange rounded-[2rem] sm:rounded-[32px] md:rounded-[40px] p-6 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-orange-100 min-h-[300px] sm:min-h-[350px] md:min-h-[400px] flex flex-col justify-center">
+        <Sun className="absolute top-[-20px] sm:top-[-30px] right-[-20px] sm:right-[-30px] w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 text-white/10" />
         <div className="relative z-10 max-w-2xl">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-white/20 mb-6"
+            className="inline-flex items-center gap-1.5 md:gap-2 bg-white/20 backdrop-blur-md px-3 md:px-4 py-1 md:py-2 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest border border-white/20 mb-4 md:mb-6"
           >
-            <Star size={14} className="text-yellow-300 fill-yellow-300" /> Biggest Event of 2024
+            <Star size={12} className="md:w-3.5 md:h-3.5 text-yellow-300 fill-yellow-300" /> Biggest Event of 2024
           </motion.div>
-          <h1 className="text-6xl font-display font-black leading-tight mb-6">Unleash Your Inner Pro This Summer!</h1>
-          <p className="text-xl text-white/90 font-medium mb-10 leading-relaxed">Join 500+ athletes for intensive training, professional coaching, and unforgettable memories. Registration is now open!</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight mb-4 md:mb-6">Unleash Your Inner Pro This Summer!</h1>
+          <p className="text-base md:text-lg lg:text-xl text-white/90 font-medium mb-6 md:mb-10 leading-relaxed">Join 500+ athletes for intensive training, professional coaching, and unforgettable memories. Registration is now open!</p>
           
-          <div className="flex flex-wrap gap-8 mb-10">
+          <div className="flex flex-wrap gap-4 md:gap-6 lg:gap-8 mb-6 md:mb-10">
             {Object.entries(timeLeft).map(([label, value]) => (
               <div key={label} className="text-center">
-                <div className="text-4xl font-display font-bold bg-white/10 backdrop-blur-sm w-20 h-20 rounded-2xl flex items-center justify-center border border-white/20 mb-2">
+                <div className="text-3xl md:text-4xl font-display font-bold bg-white/10 backdrop-blur-sm w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-xl md:rounded-2xl flex items-center justify-center border border-white/20 mb-1 md:mb-2">
                   {value.toString().padStart(2, '0')}
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">{label}</span>
+                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest opacity-70">{label}</span>
               </div>
             ))}
           </div>
 
-          <div className="flex gap-4">
-            <button className="bg-white text-secondary px-8 py-4 rounded-2xl font-black text-lg shadow-xl hover:scale-105 transition-transform">REGISTER NOW</button>
-            <button className="bg-transparent border-2 border-white/30 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 transition-colors">CAMP GUIDE</button>
+          <div className="flex flex-col xs:flex-row gap-3 md:gap-4">
+            <button className="bg-white text-secondary px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-sm md:text-base shadow-xl hover:scale-105 transition-transform min-h-[44px]">REGISTER NOW</button>
+            <button className="bg-transparent border-2 border-white/30 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-sm md:text-base hover:bg-white/10 transition-colors min-h-[44px]">CAMP GUIDE</button>
           </div>
         </div>
       </div>
 
       {/* Camp Schedule */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
         <div className="glass-card p-8">
           <h3 className="text-2xl font-display font-bold text-slate-800 mb-8 flex items-center gap-3">
             <Calendar className="text-primary" /> Camp Schedule
@@ -171,83 +171,83 @@ export function UpcomingEvents({ isAdmin = false }: { isAdmin?: boolean }) {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
         <div>
-          <h2 className="text-3xl font-display font-bold text-slate-800">Tournament Central</h2>
-          <p className="text-slate-500 font-medium">Match schedules, championships, and events</p>
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-slate-800 tracking-tight">Tournament Central</h2>
+          <p className="text-slate-500 font-medium text-sm md:text-base">Match schedules, championships, and events</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col xs:flex-row gap-2 md:gap-4">
           {isAdmin && (
             <button 
               onClick={() => setShowAddModal(true)}
-              className="bg-primary text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2"
+              className="bg-primary text-white px-5 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl font-bold flex items-center gap-2 min-h-[40px] md:min-h-[44px]"
             >
-              <Plus size={20} /> Add Event
+              <Plus size={18} className="md:w-5 md:h-5" /> Add Event
             </button>
           )}
-          <button className="glass-card px-6 py-3 flex items-center gap-2 text-slate-600 font-bold">
-             <Bell size={20} className="text-primary" /> Notify Me
+          <button className="glass-card px-4 md:px-6 py-2 md:py-3 flex items-center gap-2 text-slate-600 font-bold min-h-[40px] md:min-h-[44px]">
+             <Bell size={18} className="md:w-5 md:h-5 text-primary" /> Notify Me
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-xl font-display font-black text-slate-800">Featured Matches</h3>
-          {loading ? (
-            <div className="h-40 bg-slate-50 animate-pulse rounded-3xl" />
-          ) : events.length === 0 ? (
-            <div className="p-12 text-center bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
-              <p className="text-slate-400 font-medium">No matches scheduled currently.</p>
-            </div>
-          ) : (
-            events.map((event, i) => (
-              <motion.div 
-                key={event._id}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                className="bento-card overflow-hidden shadow-lg border border-sky-100 flex bento-card-hover relative group"
-              >
-                {isAdmin && (
-                  <button 
-                    onClick={() => deleteEvent(event._id)}
-                    className="absolute top-4 right-4 p-2 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-20"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                )}
-                <div className={cn("w-3 text-transparent", `bg-gradient-to-b ${event.color || 'from-blue-500 to-blue-600'}`)}>|</div>
-                <div className="flex-1 p-8">
-                  <div className="flex justify-between items-start mb-6">
-                     <span className="px-3 py-1 bg-sky-50 text-primary text-[10px] font-black rounded-lg uppercase tracking-widest border border-sky-100">{event.title}</span>
-                     <div className="flex items-center gap-2 text-slate-300 font-bold text-[11px] uppercase"><Clock size={12} /> {event.time}</div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between gap-8 py-4 px-2">
-                    <div className="text-center flex-1">
-                      <div className="w-16 h-16 bg-slate-50 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl shadow-inner border border-slate-100">🐯</div>
-                      <h4 className="font-display font-black text-slate-800 tracking-tight">{event.teamA}</h4>
-                    </div>
-                    <div className="text-center font-display font-black text-4xl text-slate-100">VS</div>
-                    <div className="text-center flex-1">
-                      <div className="w-16 h-16 bg-slate-50 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl shadow-inner border border-slate-100">🦅</div>
-                      <h4 className="font-display font-black text-slate-800 tracking-tight">{event.teamB}</h4>
-                    </div>
-                  </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
+          <h3 className="text-lg md:text-xl font-display font-black text-slate-800 tracking-tight">Featured Matches</h3>
+{loading ? (
+             <div className="h-40 bg-slate-50 animate-pulse rounded-2xl md:rounded-3xl" />
+           ) : events.length === 0 ? (
+             <div className="p-6 md:p-12 text-center bg-slate-50 rounded-[2rem] md:rounded-[40px] border-2 border-dashed border-slate-200">
+               <p className="text-slate-400 font-medium text-sm md:text-base">No matches scheduled currently.</p>
+             </div>
+           ) : (
+             events.map((event, i) => (
+               <motion.div 
+                 key={event._id}
+                 initial={{ opacity: 0, scale: 0.98 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 transition={{ delay: i * 0.1 }}
+                 className="bento-card overflow-hidden shadow-lg border border-sky-100 flex flex-col md:flex-row bento-card-hover relative group"
+               >
+                 {isAdmin && (
+                   <button 
+                     onClick={() => deleteEvent(event._id)}
+                     className="absolute top-3 md:top-4 right-3 md:right-4 p-1.5 md:p-2 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                   >
+                     <Trash2 size={14} className="md:w-4 md:h-4" />
+                   </button>
+                 )}
+                 <div className={cn("w-full md:w-3 text-transparent", `bg-gradient-to-b ${event.color || 'from-blue-500 to-blue-600'}`)}>|</div>
+                 <div className="flex-1 p-4 md:p-8">
+                   <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4 md:mb-6 gap-2 md:gap-0">
+                      <span className="px-3 py-1 bg-sky-50 text-primary text-[10px] font-black rounded-lg uppercase tracking-widest border border-sky-100 self-start">{event.title}</span>
+                      <div className="flex items-center gap-1.5 md:gap-2 text-slate-300 font-bold text-[10px] md:text-[11px] uppercase"><Clock size={12} className="md:w-3.5 md:h-3.5" /> {event.time}</div>
+                   </div>
+                   
+                   <div className="flex flex-col sm:flex-row items-center justify-center sm:gap-4 md:gap-6 lg:gap-8 py-2 md:py-4 px-1 md:px-2">
+                     <div className="text-center flex-1 mb-3 sm:mb-0">
+                       <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-50 rounded-full mx-auto mb-2 md:mb-3 flex items-center justify-center text-xl md:text-2xl shadow-inner border border-slate-100">🐯</div>
+                       <h4 className="font-display font-black text-slate-800 tracking-tight text-sm md:text-base">{event.teamA}</h4>
+                     </div>
+                     <div className="text-center font-display font-black text-2xl md:text-3xl lg:text-4xl text-slate-100 mb-3 sm:mb-0">VS</div>
+                     <div className="text-center flex-1">
+                       <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-50 rounded-full mx-auto mb-2 md:mb-3 flex items-center justify-center text-xl md:text-2xl shadow-inner border border-slate-100">🦅</div>
+                       <h4 className="font-display font-black text-slate-800 tracking-tight text-sm md:text-base">{event.teamB}</h4>
+                     </div>
+                   </div>
 
-                  <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
-                    <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">
-                      <span className="flex items-center gap-1.5"><MapPin size={14} className="text-sky-300" /> {event.venue}</span>
-                      <span className="flex items-center gap-1.5"><Calendar size={14} className="text-sky-300" /> {event.date}</span>
-                    </div>
-                    <button className="text-primary font-black text-[11px] uppercase tracking-widest hover:underline">Details →</button>
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          )}
+                   <div className="mt-4 md:mt-8 pt-4 md:pt-6 border-t border-slate-50 flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
+                     <div className="flex flex-col xs:flex-row xs:flex-wrap gap-2 md:gap-6 text-[10px] md:text-[11px] font-black uppercase tracking-[0.1em] text-slate-400">
+                       <span className="flex items-center gap-1"><MapPin size={12} className="md:w-3.5 md:h-3.5 text-sky-300" /> {event.venue}</span>
+                       <span className="flex items-center gap-1"><Calendar size={12} className="md:w-3.5 md:h-3.5 text-sky-300" /> {event.date}</span>
+                     </div>
+                     <button className="text-primary font-black text-[10px] md:text-[11px] uppercase tracking-widest hover:underline self-start md:self-auto">Details →</button>
+                   </div>
+                 </div>
+               </motion.div>
+             ))
+           )}
         </div>
 
         <div className="space-y-6">

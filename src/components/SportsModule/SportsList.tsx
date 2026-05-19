@@ -82,25 +82,25 @@ export function SportsList({ isAdmin = false }: SportsListProps) {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
         <div>
-          <h2 className="text-3xl font-display font-bold text-slate-800">Sports Categories</h2>
-          <p className="text-slate-500 font-medium">Explore all training disciplines at our academy</p>
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-slate-800 tracking-tight">Sports Categories</h2>
+          <p className="text-slate-500 font-medium text-sm md:text-base">Explore all training disciplines at our academy</p>
         </div>
         {isAdmin && (
           <button 
             onClick={() => setShowAddModal(true)}
-            className="sporty-gradient text-white px-8 py-4 rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-100 hover:scale-105 transition-transform active:scale-95 flex items-center gap-2"
+            className="sporty-gradient text-white px-5 md:px-8 py-3 md:py-4 rounded-2xl md:rounded-3xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-xl shadow-blue-100 hover:scale-105 transition-transform active:scale-95 flex items-center gap-2 min-h-[40px] md:min-h-[44px]"
           >
-            <Plus size={18} /> New Discipline
+            <Plus size={16} className="md:w-5 md:h-5" /> New Discipline
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
         {loading ? (
-          [1, 2, 3].map(i => <div key={i} className="h-80 bento-card animate-pulse shadow-sm" />)
+          [1, 2, 3].map(i => <div key={i} className="h-64 md:h-80 bento-card animate-pulse shadow-sm" />)
         ) : sports.map((sport, i) => (
           <motion.div 
             key={sport._id}
@@ -117,25 +117,25 @@ export function SportsList({ isAdmin = false }: SportsListProps) {
                 <Trash2 size={16} />
               </button>
             )}
-            <div className="h-41 relative overflow-hidden">
-              <img 
-                src={sport.image || `https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800`} 
-                alt={sport.name}
-                className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
-              <div className="absolute bottom-6 left-6 flex items-center gap-4">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-primary shadow-xl">
-                  <Trophy size={28} />
-                </div>
-                <div>
-                  <h3 className="text-white font-display font-black text-2xl tracking-tight">{sport.name}</h3>
-                  <p className="text-white/80 text-[10px] font-black uppercase tracking-widest">{sport.coach}</p>
-                </div>
-              </div>
-            </div>
+<div className="h-40 sm:h-44 relative overflow-hidden">
+               <img 
+                 src={sport.image || `https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800`} 
+                 alt={sport.name}
+                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
+               <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 flex items-center gap-3 md:gap-4">
+                 <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-xl md:rounded-2xl flex items-center justify-center text-primary shadow-xl">
+                   <Trophy size={24} className="md:w-6 md:h-6" />
+                 </div>
+                 <div>
+                   <h3 className="text-white font-display font-black text-lg md:text-2xl tracking-tight">{sport.name}</h3>
+                   <p className="text-white/80 text-[9px] md:text-[10px] font-black uppercase tracking-widest">{sport.coach}</p>
+                 </div>
+               </div>
+             </div>
 
-            <div className="p-8 space-y-6">
+             <div className="p-4 md:p-8 space-y-4 md:space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest">
