@@ -13,19 +13,14 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [formData, setFormData] = useState({ 
-    firstName: '', 
-    lastName: '', 
-    parentName: '', 
-    parentPhone: '',
+    name: '', 
+    age: '', 
+    gender: '',
     phone: '', 
     email: '',
     address: '',
-    school: '',
-    standard: '',
-    age: '',
-    gender: '',
-    sport: 'Football',
-    feesStatus: 'Pending'
+    emergencyContact: '',
+    emergencyPhone: ''
   });
 
   const fetchData = () => {
@@ -42,51 +37,41 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     fetchData();
   }, []);
 
-   const handleAddStudent = async (e: React.FormEvent) => {
-     e.preventDefault();
-     try {
-       const res = await fetch('/api/students', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({
-           firstName: formData.firstName,
-           lastName: formData.lastName,
-           parentName: formData.parentName,
-           parentPhone: formData.parentPhone,
-           phone: formData.phone,
-           email: formData.email,
-           address: formData.address,
-           school: formData.school,
-           standard: formData.standard,
-           age: parseInt(formData.age) || 0,
-           gender: formData.gender,
-           sportsJoined: [formData.sport],
-           feesStatus: formData.feesStatus
-         })
-       });
-       if (res.ok) {
-         setShowAddModal(false);
-         setFormData({ 
-           firstName: '', 
-           lastName: '', 
-           parentName: '', 
-           parentPhone: '',
-           phone: '', 
-           email: '',
-           address: '',
-           school: '',
-           standard: '',
-           age: '',
-           gender: '',
-           sport: 'Football',
-           feesStatus: 'Pending'
-         });
-         fetchData();
-       }
-     } catch (error) {
-       console.error("Failed to add student:", error);
-     }
-   };
+    const handleAddStudent = async (e: React.FormEvent) => {
+      e.preventDefault();
+      try {
+        const res = await fetch('/api/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            age: parseInt(formData.age) || undefined,
+            gender: formData.gender,
+            phone: formData.phone,
+            email: formData.email,
+            address: formData.address,
+            emergencyContact: formData.emergencyContact,
+            emergencyPhone: formData.emergencyPhone
+          })
+        });
+        if (res.ok) {
+          setShowAddModal(false);
+          setFormData({ 
+            name: '', 
+            age: '', 
+            gender: '',
+            phone: '', 
+            email: '',
+            address: '',
+            emergencyContact: '',
+            emergencyPhone: ''
+          });
+          fetchData();
+        }
+      } catch (error) {
+        console.error("Failed to add student:", error);
+      }
+    };
 
   const deleteStudent = async (id: string) => {
     if (!confirm("Are you sure you want to delete this student record?")) return;
@@ -98,11 +83,10 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     }
   };
 
-  const filteredStudents = students.filter(s => 
-    `${s.firstName} ${s.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.sport?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.sportsJoined?.some((sp: string) => sp.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+   const filteredStudents = students.filter(s => 
+     s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     s.gender?.toLowerCase().includes(searchTerm.toLowerCase())
+   );
 
   return (
     <div className="space-y-6">
@@ -149,25 +133,25 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
             className="bento-card p-0 overflow-hidden group bento-card-hover"
           >
             <div className="p-8">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-5">
-                  <div className="w-20 h-20 rounded-3xl bg-sky-50 p-1 border border-sky-100 shadow-inner">
-                    <img 
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.firstName}`} 
-                      alt="avatar" 
-                      className="w-full h-full object-cover rounded-2xl"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-black text-xl text-slate-800 leading-tight">{student.firstName} {student.lastName}</h3>
-                    <div className="flex gap-2 mt-2">
-                      <span className="px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-purple-100">
-                        {student.sport || student.sportsJoined?.[0] || 'Unassigned'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+               <div className="flex items-start justify-between mb-6">
+                 <div className="flex items-center gap-5">
+                   <div className="w-20 h-20 rounded-3xl bg-sky-50 p-1 border border-sky-100 shadow-inner">
+                     <img 
+                       src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`} 
+                       alt="avatar" 
+                       className="w-full h-full object-cover rounded-2xl"
+                     />
+                   </div>
+                   <div>
+                     <h3 className="font-display font-black text-xl text-slate-800 leading-tight">{student.name}</h3>
+                     <div className="flex gap-2 mt-2">
+                       <span className="px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-purple-100">
+                         {student.sport || 'Unassigned'}
+                       </span>
+                     </div>
+                   </div>
+                 </div>
+               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-slate-500">
@@ -184,29 +168,29 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                 </div>
               </div>
 
-              <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Joining Date</p>
-                  <p className="text-sm font-bold text-slate-600">
-                    {new Date(student.joiningDate).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  {isAdmin && (
-                    <>
-                      <button 
-                        onClick={() => deleteStudent(student._id)}
-                        className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                      <button className="p-2 text-slate-300 hover:text-primary hover:bg-sky-50 rounded-lg transition-all">
-                        <Edit2 size={16} />
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
+               <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-between">
+                 <div>
+                   <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Joining Date</p>
+                   <p className="text-sm font-bold text-slate-600">
+                     {new Date(student.dateJoined || student.createdAt).toLocaleDateString()}
+                   </p>
+                 </div>
+                 <div className="flex gap-2">
+                   {isAdmin && (
+                     <>
+                       <button 
+                         onClick={() => deleteStudent(student._id)}
+                         className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                       >
+                         <Trash2 size={16} />
+                       </button>
+                       <button className="p-2 text-slate-300 hover:text-primary hover:bg-sky-50 rounded-lg transition-all">
+                         <Edit2 size={16} />
+                       </button>
+                     </>
+                   )}
+                 </div>
+               </div>
             </div>
           </motion.div>
         ))}
@@ -225,35 +209,54 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
             <form onSubmit={handleAddStudent} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <input 
-                  type="text" placeholder="First Name" required
-                  value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})}
+                  type="text" placeholder="Full Name" required
+                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
                   className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
                 />
                 <input 
-                  type="text" placeholder="Last Name" required
-                  value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})}
+                  type="number" placeholder="Age" required
+                  value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})}
+                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <select 
+                  value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}
+                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+                <input 
+                  type="tel" placeholder="Phone Number" required
+                  value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
                   className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
                 />
               </div>
               <input 
-                type="text" placeholder="Parent Name" required
-                value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})}
+                type="email" placeholder="Email Address" required
+                value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
                 className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
               />
               <input 
-                type="tel" placeholder="Phone Number" required
-                value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
+                type="text" placeholder="Address" required
+                value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
                 className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
               />
-              <select 
-                value={formData.sport} onChange={e => setFormData({...formData, sport: e.target.value})}
-                className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
-              >
-                <option>Football</option>
-                <option>Tennis</option>
-                <option>Swimming</option>
-                <option>Cricket</option>
-              </select>
+              <div className="grid grid-cols-2 gap-4">
+                <input 
+                  type="text" placeholder="Emergency Contact Name" required
+                  value={formData.emergencyContact} onChange={e => setFormData({...formData, emergencyContact: e.target.value})}
+                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                />
+                <input 
+                  type="tel" placeholder="Emergency Phone" required
+                  value={formData.emergencyPhone} onChange={e => setFormData({...formData, emergencyPhone: e.target.value})}
+                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                />
+              </div>
               <button type="submit" className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4">
                 Confirm Registration
               </button>
