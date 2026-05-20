@@ -43,6 +43,8 @@ async function connectMongo() {
       // Student Schema
       const studentSchema = new Schema({
         name: { type: String, required: true },
+        firstName: { type: String },
+        lastName: { type: String },
         age: { type: Number },
         gender: { type: String },
         phone: { type: String },
@@ -53,6 +55,18 @@ async function connectMongo() {
         dateJoined: { type: Date, default: Date.now },
         active: { type: Boolean, default: true }
       }, { timestamps: true });
+
+      studentSchema.pre('validate', function() {
+        // @ts-ignore
+        if ((!this.firstName || !this.lastName) && this.name) {
+          // @ts-ignore
+          const parts = String(this.name).trim().split(/\s+/);
+          // @ts-ignore
+          this.firstName = this.firstName || parts.shift() || '';
+          // @ts-ignore
+          this.lastName = this.lastName || parts.join(' ') || '';
+        }
+      });
       
       // Coach Schema
       const coachSchema = new Schema({

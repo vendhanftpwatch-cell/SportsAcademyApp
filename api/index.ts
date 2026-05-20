@@ -75,7 +75,7 @@ async function connectMongo() {
       }, { timestamps: true });
 
       // If frontend provides a single `name` field, populate firstName/lastName
-      studentSchema.pre('validate', function(next: any) {
+      studentSchema.pre('validate', function() {
         // @ts-ignore
         if ((!this.firstName || !this.lastName) && this.name) {
           // @ts-ignore
@@ -85,7 +85,6 @@ async function connectMongo() {
           // @ts-ignore
           this.lastName = this.lastName || parts.join(' ') || '';
         }
-        next();
       });
       
       const attendanceSchema = new Schema({
