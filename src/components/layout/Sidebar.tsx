@@ -57,7 +57,7 @@ export function Sidebar({ isAdmin, mobileOpen = false, onClose }: SidebarProps) 
       )}
       
       <aside className={cn(
-        "w-64 h-screen bg-white border-r border-sky-100 sticky top-0 flex flex-col p-6 overflow-y-auto transition-transform duration-300 z-50",
+        "w-52 sm:w-64 h-screen bg-white border-r border-sky-100 sticky top-0 flex flex-col p-6 overflow-y-auto transition-transform duration-300 z-50",
         "md:translate-x-0",
         mobileOpen ? "fixed translate-x-0" : "fixed -translate-x-full md:translate-x-0"
       )}>
@@ -83,17 +83,17 @@ export function Sidebar({ isAdmin, mobileOpen = false, onClose }: SidebarProps) 
         </div>
 
       <nav className="flex-1 space-y-1">
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) => cn(
-              "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
-              isActive 
-                ? "bg-purple-50 text-purple-600 font-bold" 
-                : "text-slate-500 hover:bg-sky-50 hover:text-sky-600"
-            )}
-          >
+{menuItems.map((item) => (
+           <NavLink
+             key={item.path}
+             to={item.path}
+             className={({ isActive }) => cn(
+               "flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group relative",
+               isActive 
+                 ? "bg-purple-50 text-purple-600 font-bold" 
+                 : "text-slate-500 hover:bg-sky-50 hover:text-sky-600"
+             )}
+           >
             {({ isActive }) => (
               <>
                 {isActive && <motion.div layoutId="active-pill" className="absolute left-0 w-1 h-6 bg-purple-600 rounded-full" />}
