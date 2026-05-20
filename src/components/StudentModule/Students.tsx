@@ -16,7 +16,14 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     firstName: '', 
     lastName: '', 
     parentName: '', 
+    parentPhone: '',
     phone: '', 
+    email: '',
+    address: '',
+    school: '',
+    standard: '',
+    age: '',
+    gender: '',
     sport: 'Football',
     feesStatus: 'Pending'
   });
@@ -35,26 +42,51 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     fetchData();
   }, []);
 
-  const handleAddStudent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/students', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          sportsJoined: [formData.sport]
-        })
-      });
-      if (res.ok) {
-        setShowAddModal(false);
-        setFormData({ firstName: '', lastName: '', parentName: '', phone: '', sport: 'Football', feesStatus: 'Pending' });
-        fetchData();
-      }
-    } catch (error) {
-      console.error("Failed to add student:", error);
-    }
-  };
+   const handleAddStudent = async (e: React.FormEvent) => {
+     e.preventDefault();
+     try {
+       const res = await fetch('/api/students', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+           firstName: formData.firstName,
+           lastName: formData.lastName,
+           parentName: formData.parentName,
+           parentPhone: formData.parentPhone,
+           phone: formData.phone,
+           email: formData.email,
+           address: formData.address,
+           school: formData.school,
+           standard: formData.standard,
+           age: parseInt(formData.age) || 0,
+           gender: formData.gender,
+           sportsJoined: [formData.sport],
+           feesStatus: formData.feesStatus
+         })
+       });
+       if (res.ok) {
+         setShowAddModal(false);
+         setFormData({ 
+           firstName: '', 
+           lastName: '', 
+           parentName: '', 
+           parentPhone: '',
+           phone: '', 
+           email: '',
+           address: '',
+           school: '',
+           standard: '',
+           age: '',
+           gender: '',
+           sport: 'Football',
+           feesStatus: 'Pending'
+         });
+         fetchData();
+       }
+     } catch (error) {
+       console.error("Failed to add student:", error);
+     }
+   };
 
   const deleteStudent = async (id: string) => {
     if (!confirm("Are you sure you want to delete this student record?")) return;

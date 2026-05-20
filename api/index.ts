@@ -30,18 +30,34 @@ async function connectMongo() {
       console.log("Connected to MongoDB");
       const { Schema } = mongoose;
       
-      const studentSchema = new Schema({
-        name: { type: String, required: true },
-        age: { type: Number },
-        gender: { type: String },
-        phone: { type: String },
-        email: { type: String },
-        address: { type: String },
-        emergencyContact: { type: String },
-        emergencyPhone: { type: String },
-        dateJoined: { type: Date, default: Date.now },
-        active: { type: Boolean, default: true }
-      }, { timestamps: true });
+       const studentSchema = new Schema({
+         name: { type: String, required: true },
+         firstName: { type: String, required: true },
+         lastName: { type: String, required: true },
+         age: { type: Number },
+         gender: { type: String },
+         phone: { type: String },
+         email: { type: String },
+         address: { type: String },
+         parentName: { type: String },
+         parentPhone: { type: String },
+         emergencyContact: { type: String },
+         emergencyPhone: { type: String },
+         dateJoined: { type: Date, default: Date.now },
+         active: { type: Boolean, default: true },
+         school: { type: String },
+         standard: { type: String },
+         classesEnrolled: { type: [String], default: [] },
+         fees: { type: Number, default: 0 },
+         feesStatus: { type: String, default: 'Pending' },
+         attendance: { 
+           totalDays: { type: Number, default: 0 },
+           presentDays: { type: Number, default: 0 },
+           percentage: { type: Number, default: 0 }
+         },
+         achievements: { type: [String], default: [] },
+         sportsJoined: { type: [String], default: [] }
+       }, { timestamps: true });
       
       const coachSchema = new Schema({
         name: { type: String, required: true },
