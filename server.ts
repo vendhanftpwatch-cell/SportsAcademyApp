@@ -28,12 +28,14 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://vendhan:vendhan123
 
 // --- Database Models (only if mongoose is available) ---
 let Student, Coach, Attendance, Payment, Sport, Schedule, Event;
+let dbConnected = false;
 
 async function connectMongo() {
   if (mongoose) {
     try {
       await mongoose.connect(MONGODB_URI);
-      console.log("Connected to MongoDB");
+        dbConnected = true;
+        console.log("Connected to MongoDB");
       
       // Define schemas and models after successful connection
       const { Schema } = mongoose;
@@ -135,6 +137,7 @@ async function connectMongo() {
       
       console.log("Database models initialized");
     } catch (err) {
+      dbConnected = false;
       console.error("MongoDB connection error:", err);
     }
   }
@@ -377,7 +380,8 @@ async function startServer() {
 
   // Basic Status
   app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
+    const readyState = mongoose ? (mongoose.connection && mongoose.connection.readyState) : null;
+    res.json({ status: "ok", db: dbConnected, modelsInitialized: !!Student, mongooseReadyState: readyState });
   });
 
   // --- Vite Middleware ---

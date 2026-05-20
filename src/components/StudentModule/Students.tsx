@@ -76,9 +76,9 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
           fetchData();
         } else {
           // Show error to user if needed
-          const errorData = await res.json();
+          const errorData = await res.json().catch(() => ({}));
           console.error("Failed to add student:", errorData);
-          alert(`Failed to add student: ${errorData.error || 'Unknown error'}`);
+          alert(`Failed to add student: ${errorData.error || 'Unknown error'}${errorData.detail ? ' - ' + errorData.detail : ''}`);
         }
       } catch (error) {
         console.error("Failed to add student:", error);
