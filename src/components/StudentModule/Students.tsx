@@ -45,7 +45,7 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: formData.name,
-            age: parseInt(formData.age) || undefined,
+            age: formData.age ? parseInt(formData.age, 10) : undefined,
             gender: formData.gender,
             phone: formData.phone,
             email: formData.email,
@@ -67,9 +67,15 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
             emergencyPhone: ''
           });
           fetchData();
+        } else {
+          // Show error to user if needed
+          const errorData = await res.json();
+          console.error("Failed to add student:", errorData);
+          alert(`Failed to add student: ${errorData.error || 'Unknown error'}`);
         }
       } catch (error) {
         console.error("Failed to add student:", error);
+        alert("Failed to add student: Network error");
       }
     };
 
