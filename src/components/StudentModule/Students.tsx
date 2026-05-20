@@ -40,11 +40,18 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     const handleAddStudent = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
+        // split `name` into firstName / lastName for backend compatibility
+        const nameParts = String(formData.name || '').trim().split(/\s+/).filter(Boolean);
+        const firstName = nameParts.length ? nameParts[0] : '';
+        const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
         const res = await fetch('/api/students', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: formData.name,
+            firstName,
+            lastName,
             age: formData.age ? parseInt(formData.age, 10) : undefined,
             gender: formData.gender,
             phone: formData.phone,

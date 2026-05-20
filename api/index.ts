@@ -194,7 +194,10 @@ async function getApp() {
       await newStudent.save();
       res.status(201).json(newStudent);
     } catch (err) {
-      res.status(400).json({ error: "Failed to create student" });
+      console.error("Student creation error:", err);
+      // Prefer sending validation details when available to aid debugging
+      const detail = err && (err.message || JSON.stringify(err));
+      res.status(400).json({ error: "Failed to create student", detail });
     }
   });
 
