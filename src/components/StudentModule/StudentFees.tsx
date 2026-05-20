@@ -20,7 +20,18 @@ export function StudentFees() {
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        setStudents(data);
+        if (Array.isArray(data)) {
+          setStudents(data);
+        } else {
+          console.error('Unexpected students response:', data);
+          setStudents([]);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to load student fees:', error);
+        setStudents([]);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
@@ -90,7 +101,7 @@ export function StudentFees() {
                 <td className="p-6 border-b border-sky-50/50">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-sky-400 font-black border border-sky-100">
-                      {student.firstName[0]}{student.lastName[0]}
+                      {(student.firstName?.[0] || '').toUpperCase()}{(student.lastName?.[0] || '').toUpperCase()}
                     </div>
                     <div>
                       <p className="font-black text-slate-800 tracking-tight">{student.firstName} {student.lastName}</p>
