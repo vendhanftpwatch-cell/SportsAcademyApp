@@ -27,7 +27,13 @@ export function CoachManagement({ isAdmin = false }: CoachManagementProps) {
     fetch('/api/coaches')
       .then(res => res.json())
       .then(data => {
-        setCoaches(data);
+        setCoaches(Array.isArray(data) ? data : []);
+      })
+      .catch(error => {
+        console.error('Failed to fetch coaches:', error);
+        setCoaches([]);
+      })
+      .finally(() => {
         setLoading(false);
       });
   };

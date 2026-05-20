@@ -28,7 +28,13 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        setStudents(data);
+        setStudents(Array.isArray(data) ? data : []);
+      })
+      .catch(error => {
+        console.error('Failed to fetch students:', error);
+        setStudents([]);
+      })
+      .finally(() => {
         setLoading(false);
       });
   };
@@ -159,7 +165,7 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                      <h3 className="font-display font-black text-xl text-slate-800 leading-tight">{student.name}</h3>
                      <div className="flex gap-2 mt-2">
                        <span className="px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-purple-100">
-                         {student.sport || 'Unassigned'}
+                         {(student.sport || student.sportsJoined?.[0] || 'Unassigned')}
                        </span>
                      </div>
                    </div>

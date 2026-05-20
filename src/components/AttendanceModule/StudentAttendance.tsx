@@ -22,7 +22,8 @@ interface Student {
   firstName: string;
   lastName: string;
   name?: string;
-  sport: string;
+  sport?: string;
+  sportsJoined?: string[];
   age?: number;
 }
 
@@ -76,15 +77,20 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
       const studentsData = await studentsRes.json();
       const attendanceDataRaw = await attendanceRes.json();
       
-      setStudents(studentsData);
+      setStudents(Array.isArray(studentsData) ? studentsData : []);
       
+      const attendanceArray = Array.isArray(attendanceDataRaw) ? attendanceDataRaw : [];
       const transformed: Record<string, 'present' | 'absent' | 'leave'> = {};
-      attendanceDataRaw.forEach((rec: any) => {
-        transformed[`${rec.studentId}-${rec.date}`] = rec.status;
+      attendanceArray.forEach((rec: any) => {
+        if (rec?.studentId && rec?.date && rec?.status) {
+          transformed[`${rec.studentId}-${new Date(rec.date).toISOString().slice(0, 10)}`] = rec.status;
+        }
       });
       setAttendanceData(transformed);
     } catch (error) {
-      console.error("Failed to fetch data:", error);
+      console.error("Failed to fetch student attendance data:", error);
+      setStudents([]);
+      setAttendanceData({});
     } finally {
       setIsLoading(false);
     }
@@ -133,7 +139,9 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
+          name: `${formData.firstName} ${formData.lastName}`,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           sportsJoined: [formData.sport]
         })
       });
@@ -155,7 +163,9 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
+          name: `${formData.firstName} ${formData.lastName}`,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           sportsJoined: [formData.sport]
         })
       });
@@ -181,7 +191,10 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
 
   const filteredStudents = selectedSport === 'All Sports' 
     ? students 
-    : students.filter(s => s.sport === selectedSport);
+    : students.filter(s => {
+        const sport = s.sport || s.sportsJoined?.[0] || '';
+        return sport === selectedSport;
+      });
 
   const handlePrevMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
@@ -317,7 +330,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
                         </div>
                         <div>
                           <p className="font-black text-slate-800 tracking-tight">{student.firstName} {student.lastName}</p>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">{student.sport}</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">{student.sport || student.sportsJoined?.[0] || 'Unassigned'}</p>
                         </div>
                       </div>
                       {isAdmin && (
@@ -325,7 +338,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
                           <button 
                             onClick={() => {
                               setEditingStudent(student);
-                              setFormData({ firstName: student.firstName, lastName: student.lastName, sport: student.sport });
+                              setFormData({ firstName: student.firstName, lastName: student.lastName, sport: student.sport || student.sportsJoined?.[0] || 'Football' });
                             }}
                             className="p-1.5 hover:bg-white rounded-lg text-slate-400 hover:text-primary transition-colors shadow-sm"
                           >

@@ -41,15 +41,20 @@ export function CoachAttendance() {
       const coachesData = await coachesRes.json();
       const attendanceDataRaw = await attendanceRes.json();
       
-      setCoaches(coachesData);
+      setCoaches(Array.isArray(coachesData) ? coachesData : []);
       
+      const attendanceArray = Array.isArray(attendanceDataRaw) ? attendanceDataRaw : [];
       const transformed: Record<string, 'present' | 'absent' | 'leave'> = {};
-      attendanceDataRaw.forEach((rec: any) => {
-        transformed[`${rec.coachId}-${rec.date}`] = rec.status;
+      attendanceArray.forEach((rec: any) => {
+        if (rec?.coachId && rec?.date && rec?.status) {
+          transformed[`${rec.coachId}-${new Date(rec.date).toISOString().slice(0, 10)}`] = rec.status;
+        }
       });
       setAttendanceData(transformed);
     } catch (error) {
-      console.error("Failed to fetch data:", error);
+      console.error("Failed to fetch coach attendance data:", error);
+      setCoaches([]);
+      setAttendanceData({});
     } finally {
       setLoading(false);
     }

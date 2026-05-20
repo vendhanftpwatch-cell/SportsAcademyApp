@@ -7,7 +7,8 @@ interface Student {
   _id: string;
   firstName: string;
   lastName: string;
-  sport: string;
+  sport?: string;
+  sportsJoined?: string[];
   feesStatus: 'Paid' | 'Pending';
 }
 
@@ -46,9 +47,12 @@ export function StudentFees() {
       });
       if (res.ok) {
         setStudents(students.map(s => s._id === id ? { ...s, feesStatus: newStatus } : s));
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Failed to update fee status:', errorData);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Fee status update failed:', err);
     }
   };
 
@@ -110,7 +114,7 @@ export function StudentFees() {
                 </td>
                 <td className="p-6 border-b border-sky-50/50">
                   <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded-lg uppercase tracking-widest">
-                    {student.sport}
+                    {student.sport || student.sportsJoined?.[0] || 'Unassigned'}
                   </span>
                 </td>
                 <td className="p-6 border-b border-sky-50/50">

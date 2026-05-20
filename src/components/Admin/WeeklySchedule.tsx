@@ -31,10 +31,12 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
     try {
       const res = await fetch('/api/schedules');
       const data = await res.json();
-      setSchedules(data);
-      setLoading(false);
+      setSchedules(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
+      setSchedules([]);
+    } finally {
+      setLoading(false);
     }
   };
 

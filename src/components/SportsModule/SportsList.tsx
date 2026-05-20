@@ -37,7 +37,13 @@ export function SportsList({ isAdmin = false }: SportsListProps) {
     fetch('/api/sports')
       .then(res => res.json())
       .then(data => {
-        setSports(data);
+        setSports(Array.isArray(data) ? data : []);
+      })
+      .catch(error => {
+        console.error('Failed to fetch sports:', error);
+        setSports([]);
+      })
+      .finally(() => {
         setLoading(false);
       });
   };

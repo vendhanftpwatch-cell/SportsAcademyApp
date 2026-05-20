@@ -73,11 +73,13 @@ export function Dashboard({ isAdmin = false }: DashboardProps) {
         const todayName = days[new Date().getDay()];
         const res = await fetch('/api/schedules');
         const data = await res.json();
-        const filtered = data.filter((item: any) => item.day === todayName);
+        const schedules = Array.isArray(data) ? data : [];
+        const filtered = schedules.filter((item: any) => item.day === todayName);
         setTodaySchedule(filtered);
-        setLoadingSchedule(false);
       } catch (err) {
-        console.error(err);
+        console.error('Failed to load today schedule:', err);
+        setTodaySchedule([]);
+      } finally {
         setLoadingSchedule(false);
       }
     };

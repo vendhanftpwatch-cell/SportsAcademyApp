@@ -44,12 +44,14 @@ export function CoachPay() {
         fetch('/api/coaches'),
         fetch('/api/payments')
       ]);
-      const c = await coachesRes.json();
-      const p = await paymentsRes.json();
-      setCoaches(c);
-      setPayments(p);
+      const coachesData = await coachesRes.json();
+      const paymentsData = await paymentsRes.json();
+      setCoaches(Array.isArray(coachesData) ? coachesData : []);
+      setPayments(Array.isArray(paymentsData) ? paymentsData : []);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load coach payroll data:', err);
+      setCoaches([]);
+      setPayments([]);
     } finally {
       setLoading(false);
     }
@@ -59,20 +61,30 @@ export function CoachPay() {
     e.preventDefault();
     if (!selectedCoach) return;
     try {
+      const monthValue = formData.month.trim();
+      const yearMatch = monthValue.match(/(\d{4})$/);
+      const yearValue = yearMatch ? parseInt(yearMatch[1], 10) : new Date().getFullYear();
+
       const res = await fetch('/api/payments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           coachId: selectedCoach._id,
-          ...formData
+          amount: formData.amount,
+          month: formData.month,
+          year: yearValue,
+          notes: formData.notes
         })
       });
       if (res.ok) {
         setShowPayModal(false);
         fetchData();
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Failed to create payment:', errorData);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Payment submission error:', err);
     }
   };
 

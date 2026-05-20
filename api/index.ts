@@ -64,12 +64,14 @@ async function connectMongo() {
       
       const coachSchema = new Schema({
         name: { type: String, required: true },
-        age: { type: Number },
-        gender: { type: String },
-        phone: { type: String },
-        email: { type: String },
+        sport: { type: String },
         specialization: { type: String },
         experience: { type: Number },
+        phone: { type: String },
+        email: { type: String },
+        salary: { type: Number },
+        workingHours: { type: String },
+        joiningDate: { type: String },
         dateJoined: { type: Date, default: Date.now },
         active: { type: Boolean, default: true }
       }, { timestamps: true });
@@ -85,6 +87,11 @@ async function connectMongo() {
           // @ts-ignore
           this.lastName = this.lastName || parts.join(' ') || '';
         }
+        // @ts-ignore
+        if (!this.name && (this.firstName || this.lastName)) {
+          // @ts-ignore
+          this.name = `${this.firstName || ''}${this.lastName ? ` ${this.lastName}` : ''}`.trim();
+        }
       });
       
       const attendanceSchema = new Schema({
@@ -99,7 +106,7 @@ async function connectMongo() {
         coachId: { type: Schema.Types.ObjectId, ref: 'Coach', required: true },
         amount: { type: Number, required: true },
         month: { type: String, required: true },
-        year: { type: Number, required: true },
+        year: { type: Number, default: new Date().getFullYear() },
         paymentDate: { type: Date, default: Date.now },
         method: { type: String },
         status: { type: String, default: 'paid' }
@@ -117,27 +124,21 @@ async function connectMongo() {
       }, { timestamps: true });
       
       const scheduleSchema = new Schema({
-        title: { type: String, required: true },
-        description: { type: String },
-        date: { type: Date, required: true },
-        startTime: { type: String, required: true },
-        endTime: { type: String, required: true },
-        location: { type: String },
-        sport: { type: String },
-        coach: { type: String },
-        maxParticipants: { type: Number },
-        currentParticipants: { type: Number, default: 0 }
+        day: { type: String, required: true },
+        time: { type: String, required: true },
+        activity: { type: String, required: true },
+        coach: { type: String, required: true },
+        location: { type: String, required: true }
       }, { timestamps: true });
       
       const eventSchema = new Schema({
         title: { type: String, required: true },
-        description: { type: String },
+        teamA: { type: String },
+        teamB: { type: String },
         date: { type: Date, required: true },
-        startTime: { type: String, required: true },
-        endTime: { type: String, required: true },
-        location: { type: String },
-        type: { type: String },
-        image: { type: String },
+        time: { type: String, required: true },
+        venue: { type: String, required: true },
+        color: { type: String },
         isActive: { type: Boolean, default: true }
       }, { timestamps: true });
       
@@ -309,10 +310,16 @@ async function getApp() {
   app.post("/api/payments", async (req, res) => {
     try {
       if (!Payment) return res.status(503).json({ error: "Database not available" });
-      const payment = new Payment(req.body);
+      const paymentBody = { ...req.body };
+      if (!paymentBody.year && typeof paymentBody.month === 'string') {
+        const yearMatch = paymentBody.month.match(/(\d{4})$/);
+        paymentBody.year = yearMatch ? parseInt(yearMatch[1], 10) : new Date().getFullYear();
+      }
+      const payment = new Payment(paymentBody);
       await payment.save();
       res.status(201).json(payment);
     } catch (err) {
+      console.error('Payment creation error:', err);
       res.status(400).json({ error: "Failed to create payment" });
     }
   });

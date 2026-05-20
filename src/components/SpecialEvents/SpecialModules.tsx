@@ -127,13 +127,15 @@ export function UpcomingEvents({ isAdmin = false }: { isAdmin?: boolean }) {
   });
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const res = await fetch('/api/events');
       const data = await res.json();
-      setEvents(data);
-      setLoading(false);
+      setEvents(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load events:', err);
+      setEvents([]);
+    } finally {
       setLoading(false);
     }
   };
