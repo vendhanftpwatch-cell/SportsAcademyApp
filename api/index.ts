@@ -1,18 +1,13 @@
 import express from "express";
-import path from "path";
 import dotenv from "dotenv";
-
-// Setup crypto for Node 16 compatibility (needed for Vite)
 import { webcrypto } from "crypto";
+
 if (!globalThis.crypto) {
   globalThis.crypto = webcrypto as Crypto;
 }
 
-import { createServer as createViteServer } from "vite";
-
 dotenv.config();
 
-// Skip mongoose connection in development if not available
 let mongoose: any;
 const importMongoose = async () => {
   try {
@@ -26,7 +21,6 @@ const importMongoose = async () => {
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://vendhan:vendhan123@cluster0.irfa0ip.mongodb.net/?appName=Cluster0";
 
-// --- Database Models (only if mongoose is available) ---
 let Student, Coach, Attendance, Payment, Sport, Schedule, Event;
 
 async function connectMongo() {
@@ -34,11 +28,8 @@ async function connectMongo() {
     try {
       await mongoose.connect(MONGODB_URI);
       console.log("Connected to MongoDB");
-      
-      // Define schemas and models after successful connection
       const { Schema } = mongoose;
       
-      // Student Schema
       const studentSchema = new Schema({
         name: { type: String, required: true },
         age: { type: Number },
@@ -52,7 +43,6 @@ async function connectMongo() {
         active: { type: Boolean, default: true }
       }, { timestamps: true });
       
-      // Coach Schema
       const coachSchema = new Schema({
         name: { type: String, required: true },
         age: { type: Number },
@@ -65,7 +55,6 @@ async function connectMongo() {
         active: { type: Boolean, default: true }
       }, { timestamps: true });
       
-      // Attendance Schema
       const attendanceSchema = new Schema({
         studentId: { type: Schema.Types.ObjectId, ref: 'Student' },
         coachId: { type: Schema.Types.ObjectId, ref: 'Coach' },
@@ -74,7 +63,6 @@ async function connectMongo() {
         type: { type: String, required: true, enum: ['student', 'coach'] }
       }, { timestamps: true });
       
-      // Payment Schema
       const paymentSchema = new Schema({
         coachId: { type: Schema.Types.ObjectId, ref: 'Coach', required: true },
         amount: { type: Number, required: true },
@@ -85,7 +73,6 @@ async function connectMongo() {
         status: { type: String, default: 'paid' }
       }, { timestamps: true });
       
-      // Sport Schema
       const sportSchema = new Schema({
         name: { type: String, required: true },
         coach: { type: String, required: true },
@@ -97,7 +84,6 @@ async function connectMongo() {
         image: { type: String }
       }, { timestamps: true });
       
-      // Schedule Schema
       const scheduleSchema = new Schema({
         title: { type: String, required: true },
         description: { type: String },
@@ -111,7 +97,6 @@ async function connectMongo() {
         currentParticipants: { type: Number, default: 0 }
       }, { timestamps: true });
       
-      // Event Schema
       const eventSchema = new Schema({
         title: { type: String, required: true },
         description: { type: String },
@@ -124,7 +109,6 @@ async function connectMongo() {
         isActive: { type: Boolean, default: true }
       }, { timestamps: true });
       
-      // Create models
       Student = mongoose.model('Student', studentSchema);
       Coach = mongoose.model('Coach', coachSchema);
       Attendance = mongoose.model('Attendance', attendanceSchema);
@@ -140,17 +124,17 @@ async function connectMongo() {
   }
 }
 
-async function startServer() {
+let app: express.Application;
+
+async function getApp() {
+  if (app) return app;
+  
   await importMongoose();
   await connectMongo();
-  const app = express();
-  const PORT = 3000;
-
+  
+  app = express();
   app.use(express.json());
 
-  // --- API Routes ---
-
-  // Auth
   app.post("/api/login", (req, res) => {
     const { username, password } = req.body;
     if (username === "vendhan" && password === "vendhan123") {
@@ -162,7 +146,6 @@ async function startServer() {
     }
   });
 
-  // Students CRUD
   app.get("/api/students", async (req, res) => {
     try {
       if (!Student) return res.json([]);
@@ -207,7 +190,6 @@ async function startServer() {
     }
   });
 
-  // Coaches CRUD
   app.get("/api/coaches", async (req, res) => {
     try {
       if (!Coach) return res.json([]);
@@ -250,7 +232,6 @@ async function startServer() {
     }
   });
 
-  // Attendance CRUD
   app.get("/api/attendance", async (req, res) => {
     try {
       if (!Attendance) return res.json([]);
@@ -279,7 +260,6 @@ async function startServer() {
     }
   });
 
-  // Payments CRUD
   app.get("/api/payments", async (req, res) => {
     try {
       if (!Payment) return res.json([]);
@@ -301,7 +281,6 @@ async function startServer() {
     }
   });
 
-  // Sports CRUD
   app.get("/api/sports", async (req, res) => {
     try {
       if (!Sport) return res.json([]);
@@ -342,8 +321,48 @@ async function startServer() {
       res.status(500).json({ error: "Failed to delete sport" });
     }
   });
-    
-  // Events CRUD
+
+  app.get("/api/schedules", async (req, res) => {
+    try {
+      if (!Schedule) return res.json([]);
+      const schedules = await Schedule.find();
+      res.json(schedules);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch schedules" });
+    }
+  });
+
+  app.post("/api/schedules", async (req, res) => {
+    try {
+      if (!Schedule) return res.status(503).json({ error: "Database not available" });
+      const schedule = new Schedule(req.body);
+      await schedule.save();
+      res.status(201).json(schedule);
+    } catch (err) {
+      res.status(400).json({ error: "Failed to create schedule" });
+    }
+  });
+
+  app.put("/api/schedules/:id", async (req, res) => {
+    try {
+      if (!Schedule) return res.status(503).json({ error: "Database not available" });
+      const schedule = await Schedule.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.json(schedule);
+    } catch (err) {
+      res.status(400).json({ error: "Failed to update schedule" });
+    }
+  });
+
+  app.delete("/api/schedules/:id", async (req, res) => {
+    try {
+      if (!Schedule) return res.status(503).json({ error: "Database not available" });
+      await Schedule.findByIdAndDelete(req.params.id);
+      res.json({ message: "Schedule deleted" });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to delete schedule" });
+    }
+  });
+
   app.get("/api/events", async (req, res) => {
     try {
       if (!Event) return res.json([]);
@@ -375,35 +394,14 @@ async function startServer() {
     }
   });
 
-  // Basic Status
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });
 
-  // --- Vite Middleware ---
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { 
-        middlewareMode: true,
-        hmr: false
-      },
-      appType: "spa",
-      optimizeDeps: {
-        include: []
-      }
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-  }
-
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  return app;
 }
 
-startServer();
+export default async function handler(req: express.Request, res: express.Response) {
+  const app = await getApp();
+  return app(req, res);
+}
