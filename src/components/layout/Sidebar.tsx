@@ -32,6 +32,7 @@ const publicMenuItems = [
 
 const adminMenuItems = [
   { icon: Shield, label: 'Admin Panel', path: '/admin' },
+  { icon: Calendar, label: 'Court Bookings', path: '/admin/court-bookings' },
   { icon: CreditCard, label: 'Student Fees', path: '/fees' },
   { icon: CalendarCheck, label: 'Student Attendance', path: '/attendance/students' },
   { icon: Users, label: 'Student List', path: '/students/archive' },

@@ -4,10 +4,14 @@ export function CourtBookingForm() {
   const [formData, setFormData] = useState({
     bookingType: '',
     date: '',
+    startTime: '',
+    endTime: '',
+    courtType: '',
     fullName: '',
     phoneNumber: '',
+    email: '',
     purpose: '',
-    address: '',
+    additionalNotes: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,25 +31,30 @@ export function CourtBookingForm() {
     setSubmitStatus(null);
 
     try {
-      const bookingRequests = JSON.parse(localStorage.getItem('courtBookingRequests') || '[]');
-      const newRequest = {
-        ...formData,
-        id: Date.now(),
-        timestamp: new Date().toISOString(),
-        status: 'pending'
-      };
-      
-      localStorage.setItem('courtBookingRequests', JSON.stringify([...bookingRequests, newRequest]));
-      
-      setSubmitStatus('success');
-      setFormData({
-        bookingType: '',
-        date: '',
-        fullName: '',
-        phoneNumber: '',
-        purpose: '',
-        address: '',
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBase}/api/court-bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        setFormData({
+          bookingType: '',
+          date: '',
+          startTime: '',
+          endTime: '',
+          courtType: '',
+          fullName: '',
+          phoneNumber: '',
+          email: '',
+          purpose: '',
+          additionalNotes: '',
+        });
+      } else {
+        setSubmitStatus('error');
+      }
     } catch (error) {
       console.error('Failed to submit booking request:', error);
       setSubmitStatus('error');
@@ -76,21 +85,6 @@ export function CourtBookingForm() {
         )}
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Type (Day or Time)</label>
-            <select
-              name="bookingType"
-              value={formData.bookingType}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-            >
-              <option value="">Select type</option>
-              <option value="day">Full Day</option>
-              <option value="time">Specific Time</option>
-            </select>
-          </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Date</label>
@@ -105,14 +99,47 @@ export function CourtBookingForm() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Time (if applicable)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Start Time</label>
               <input
                 type="time"
-                name="time"
-                value={formData.time || ''}
+                name="startTime"
+                value={formData.startTime}
                 onChange={handleChange}
+                required
                 className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
               />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">End Time</label>
+              <input
+                type="time"
+                name="endTime"
+                value={formData.endTime}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Court Type</label>
+              <select
+                name="courtType"
+                value={formData.courtType}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              >
+                <option value="">Select court type</option>
+                <option value="basketball">Basketball Court</option>
+                <option value="tennis">Tennis Court</option>
+                <option value="badminton">Badminton Court</option>
+                <option value="volleyball">Volleyball Court</option>
+                <option value="multi-purpose">Multi-purpose Court</option>
+              </select>
             </div>
           </div>
           
@@ -128,16 +155,29 @@ export function CourtBookingForm() {
             />
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+              <input
+                type="tel"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              />
+            </div>
           </div>
           
           <div>
@@ -160,14 +200,14 @@ export function CourtBookingForm() {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Address</label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
+            <label className="block text-sm font-medium text-slate-700 mb-2">Additional Notes</label>
+            <textarea
+              name="additionalNotes"
+              value={formData.additionalNotes}
               onChange={handleChange}
-              required
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              rows={4}
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none"
+              placeholder="Any special requirements or additional information..."
             />
           </div>
           

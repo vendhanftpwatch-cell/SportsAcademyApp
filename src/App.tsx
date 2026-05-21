@@ -75,10 +75,14 @@ export default function App() {
                <Route path="/login" element={!isAuthenticated ? <Login onLogin={() => handleLogin(true)} /> : <Navigate to="/" replace />} />
                
                {/* Admin Gateway */}
-               <Route 
-                 path="/admin" 
-                 element={isAuthenticated ? <AdminPanel /> : <Navigate to="/login" replace />} 
-               />
+<Route 
+                  path="/admin" 
+                  element={isAuthenticated ? <AdminPanel /> : <Navigate to="/login" replace />} 
+                />
+                <Route 
+                  path="/admin/court-bookings" 
+                  element={isAuthenticated ? <CourtBookingAdmin /> : <Navigate to="/login" replace />} 
+                />
                
                {/* Protected Admin Detail Routes */}
                <Route 

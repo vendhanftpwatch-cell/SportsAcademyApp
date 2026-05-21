@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 
 interface CourtBookingRequest {
-  id: number;
+  _id: string;
   bookingType: string;
   date: string;
-  time?: string;
+  startTime?: string;
+  endTime?: string;
+  courtType: string;
   fullName: string;
   phoneNumber: string;
+  email?: string;
   purpose: string;
-  address: string;
-  timestamp: string;
+  additionalNotes?: string;
   status: 'pending' | 'approved' | 'rejected';
   whatsappSent?: boolean;
+  createdAt: string;
 }
 
 export function CourtBookingAdmin() {
@@ -25,12 +28,18 @@ export function CourtBookingAdmin() {
     loadRequests();
   }, []);
 
-  const loadRequests = () => {
+  const loadRequests = async () => {
     setLoading(true);
     try {
-      const storedRequests = localStorage.getItem('courtBookingRequests');
-      const parsedRequests = storedRequests ? JSON.parse(storedRequests) : [];
-      setRequests(parsedRequests);
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBase}/api/court-bookings`);
+      if (response.ok) {
+        const data = await response.json();
+        setRequests(data);
+      } else {
+        console.error('Failed to fetch bookings:', response.status);
+        setRequests([]);
+      }
     } catch (error) {
       console.error('Error loading requests:', error);
       setRequests([]);
@@ -39,37 +48,25 @@ export function CourtBookingAdmin() {
     }
   };
 
-    const handleAction = (id: number, action: 'approve' | 'reject') => {
+    const handleAction = async (id: string, action: 'approve' | 'reject') => {
     setLoading(true);
     try {
-      const updatedRequests = requests.map(request => {
-        if (request.id === id) {
-          const updatedRequest = { ...request, status: action === 'approve' ? 'approved' : 'rejected' };
-          
-          // If approving, prepare WhatsApp notification
-          if (action === 'approve') {
-            const whatsappMessage = encodeURIComponent(
-              `Hello ${request.fullName}! Your court booking request has been approved.\n\n` +
-              `Details:\n` +
-              `Date: ${request.date}\n` +
-              `Time: ${request.time || 'Not specified'}\n` +
-              `Type: ${request.bookingType}\n` +
-              `Purpose: ${request.purpose}\n` +
-              `Address: ${request.address}\n\n` +
-              `Please arrive 15 minutes before your booking time. Thank you!`
-            );
-            
-            // Store WhatsApp URL in the request for later use
-            updatedRequest.whatsappUrl = `https://wa.me/${request.phoneNumber.replace(/\s+/g, '')}?text=${whatsappMessage}`;
-          }
-          
-          return updatedRequest;
-        }
-        return request;
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBase}/api/court-bookings/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: action === 'approve' ? 'approved' : 'rejected' })
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to update booking');
+      }
+
+      const updatedBooking = await response.json();
       
-      localStorage.setItem('courtBookingRequests', JSON.stringify(updatedRequests));
-      setRequests(updatedRequests);
+      setRequests(prev => prev.map(request => 
+        request._id === id ? updatedBooking : request
+      ));
       
       setNotificationType('success');
       setNotificationMessage(`Booking request ${action}ed successfully!`);
@@ -141,77 +138,91 @@ export function CourtBookingAdmin() {
         </p>
       </div>
 
-      {requests.length === 0 ? (
+{requests.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-slate-500">No court booking requests found.</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {requests.map((request) => (
-            <div key={request.id} className="border rounded-2xl p-6 bg-white shadow-sm">
-              <div className="mb-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                    <svg size={20} className="text-primary">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h2 className="font-bold text-lg">{request.fullName}</h2>
-                    <p className="text-sm text-slate-500">#{request.id} • {new Date(request.timestamp).toLocaleDateString()}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 text-xs text-slate-500">
-                  <span>📅 {request.date}</span>
-                  <span>🕐 {request.time || 'Not specified'}</span>
-                  <span>📋 {request.bookingType}</span>
-                  <span>📱 {request.phoneNumber}</span>
-                </div>
-              </div>
-              
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                 <div>
-                   <p className="text-sm font-medium text-slate-600">Purpose</p>
-                   <p className="text-slate-800">{request.purpose}</p>
-                 </div>
-                 <div>
-                   <p className="text-sm font-medium text-slate-600">Address</p>
-                   <p className="text-slate-800">{request.address}</p>
-                 </div>
-               </div>
-              
-              {request.additionalNotes && (
+          {requests.map((request) => {
+            const timeDisplay = request.startTime ? `${request.startTime}${request.endTime ? ` - ${request.endTime}` : ''}` : 'Not specified';
+            const whatsappMessage = encodeURIComponent(
+              `Hello ${request.fullName}! Your court booking request has been approved.\n\n` +
+              `Details:\n` +
+              `Date: ${request.date}\n` +
+              `Time: ${timeDisplay}\n` +
+              `Court Type: ${request.courtType}\n` +
+              `Purpose: ${request.purpose}\n\n` +
+              `Please arrive 15 minutes before your booking time. Thank you!`
+            );
+            const whatsappUrl = `https://wa.me/${request.phoneNumber.replace(/\s+/g, '')}?text=${whatsappMessage}`;
+            
+            return (
+              <div key={request._id} className="border rounded-2xl p-6 bg-white shadow-sm">
                 <div className="mb-4">
-                  <p className="text-sm font-medium text-slate-600 mb-1">Additional Notes</p>
-                  <p className="text-slate-800 whitespace-pre-wrap">{request.additionalNotes}</p>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                      <svg size={20} className="text-primary">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-lg">{request.fullName}</h2>
+                      <p className="text-sm text-slate-500">#{request._id.slice(-6)} • {new Date(request.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <span>📅 {request.date}</span>
+                    <span>🕐 {timeDisplay}</span>
+                    <span>📋 {request.courtType}</span>
+                    <span>📱 {request.phoneNumber}</span>
+                  </div>
                 </div>
-              )}
-              
-              <div className="flex justify-end gap-3">
-                {request.status === 'pending' && (
-                  <>
-                    <button
-                      onClick={() => handleAction(request.id, 'approve')}
-                      disabled={loading}
-                      className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleAction(request.id, 'reject')}
-                      disabled={loading}
-                      className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Reject
-                    </button>
-                  </>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Purpose</p>
+                    <p className="text-slate-800">{request.purpose}</p>
+                  </div>
+                  {request.email && (
+                    <div>
+                      <p className="text-sm font-medium text-slate-600">Email</p>
+                      <p className="text-slate-800">{request.email}</p>
+                    </div>
+                  )}
+                </div>
+                
+                {request.additionalNotes && (
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-slate-600 mb-1">Additional Notes</p>
+                    <p className="text-slate-800 whitespace-pre-wrap">{request.additionalNotes}</p>
+                  </div>
                 )}
                 
-                {request.status !== 'pending' && (
-                  <>
-                    {request.whatsappUrl && (
+                <div className="flex justify-end gap-3">
+                  {request.status === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => handleAction(request._id, 'approve')}
+                        disabled={loading}
+                        className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleAction(request._id, 'reject')}
+                        disabled={loading}
+                        className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Reject
+                      </button>
+                    </>
+                  )}
+                  
+                  {request.status !== 'pending' && (
+                    <>
                       <a
-                        href={request.whatsappUrl}
+                        href={whatsappUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-green-50 hover:bg-green-100 text-green-800 border border-green-200"
@@ -221,15 +232,15 @@ export function CourtBookingAdmin() {
                         </svg>
                         Send WhatsApp
                       </a>
-                    )}
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {request.status === 'approved' ? 'Approved' : 'Rejected'}
-                    </span>
-                  </>
-                )}
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {request.status === 'approved' ? 'Approved' : 'Rejected'}
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

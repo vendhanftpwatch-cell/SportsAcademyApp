@@ -27,7 +27,7 @@ const importMongoose = async () => {
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://vendhan:vendhan123@cluster0.irfa0ip.mongodb.net/?appName=Cluster0";
 
 // --- Database Models (only if mongoose is available) ---
-let Student, Coach, Attendance, Payment, Sport, Schedule, Event;
+let Student, Coach, Attendance, Payment, Sport, Schedule, Event, CourtBooking;
 let dbConnected = false;
 
 async function connectMongo() {
@@ -141,14 +141,30 @@ async function connectMongo() {
         isActive: { type: Boolean, default: true }
       }, { timestamps: true });
       
+      // Court Booking Schema
+      const courtBookingSchema = new Schema({
+        bookingType: { type: String, required: true },
+        date: { type: String, required: true },
+        startTime: { type: String },
+        endTime: { type: String },
+        courtType: { type: String, required: true },
+        fullName: { type: String, required: true },
+        phoneNumber: { type: String, required: true },
+        email: { type: String },
+        purpose: { type: String, required: true },
+        additionalNotes: { type: String },
+        status: { type: String, default: 'pending' }
+      }, { timestamps: true });
+
       // Create models
-      Student = mongoose.model('Student', studentSchema);
-      Coach = mongoose.model('Coach', coachSchema);
-      Attendance = mongoose.model('Attendance', attendanceSchema);
-      Payment = mongoose.model('Payment', paymentSchema);
-      Sport = mongoose.model('Sport', sportSchema);
-      Schedule = mongoose.model('Schedule', scheduleSchema);
-      Event = mongoose.model('Event', eventSchema);
+Student = mongoose.model('Student', studentSchema);
+       Coach = mongoose.model('Coach', coachSchema);
+       Attendance = mongoose.model('Attendance', attendanceSchema);
+       Payment = mongoose.model('Payment', paymentSchema);
+       Sport = mongoose.model('Sport', sportSchema);
+       Schedule = mongoose.model('Schedule', scheduleSchema);
+       Event = mongoose.model('Event', eventSchema);
+       CourtBooking = mongoose.model('CourtBooking', courtBookingSchema);
       
       console.log("Database models initialized");
     } catch (err) {
@@ -438,6 +454,55 @@ async function startServer() {
       res.json({ message: "Schedule deleted" });
     } catch (err) {
       res.status(500).json({ error: "Failed to delete schedule" });
+    }
+  });
+
+  // Court Bookings CRUD
+  app.get("/api/court-bookings", async (req, res) => {
+    try {
+      if (!CourtBooking) return res.json([]);
+      const bookings = await CourtBooking.find();
+      res.json(bookings);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch court bookings" });
+    }
+  });
+
+  app.post("/api/court-bookings", async (req, res) => {
+    try {
+      if (!CourtBooking) return res.status(503).json({ error: "Database not available" });
+      const booking = new CourtBooking({
+        ...req.body,
+        status: 'pending'
+      });
+      await booking.save();
+      
+      console.log(`New court booking submitted: ${booking.fullName} for ${booking.date}`);
+      
+      res.status(201).json(booking);
+    } catch (err) {
+      console.error('Failed to create court booking:', err);
+      res.status(400).json({ error: "Failed to create court booking" });
+    }
+  });
+
+  app.put("/api/court-bookings/:id", async (req, res) => {
+    try {
+      if (!CourtBooking) return res.status(503).json({ error: "Database not available" });
+      const booking = await CourtBooking.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.json(booking);
+    } catch (err) {
+      res.status(400).json({ error: "Failed to update court booking" });
+    }
+  });
+
+  app.delete("/api/court-bookings/:id", async (req, res) => {
+    try {
+      if (!CourtBooking) return res.status(503).json({ error: "Database not available" });
+      await CourtBooking.findByIdAndDelete(req.params.id);
+      res.json({ message: "Court booking deleted" });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to delete court booking" });
     }
   });
 
