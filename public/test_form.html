@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <title>Test Court Booking Submit</title>
+</head>
+<body>
+  <h2>Submit court-booking form</h2>
+  <form id="testForm">
+    <input name="bookingType" value="team" placeholder="Booking Type"><br>
+    <input name="date" type="date" value="2026-05-22"><br>
+    <input name="startTime" type="time" value="10:00"><br>
+    <input name="endTime" type="time" value="12:00"><br>
+    <input name="courtType" value="basketball"><br>
+    <input name="fullName" value="Test"><br>
+    <input name="phoneNumber" type="tel" value="1234567"><br>
+    <input name="email" type="email" value="test@test.com"><br>
+    <input name="purpose" value="practice"><br>
+    <input name="additionalNotes" value=""><br>
+    <button type="submit">Submit</button>
+  </form>
+  <p id="status"></p>
+  <script>
+    document.getElementById('testForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {};
+      new FormData(form).forEach((v, k) => data[k] = v);
+      
+      document.getElementById('status').textContent = 'Submitting...';
+      
+      try {
+        const res = await fetch('/api/court-bookings', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        });
+        const body = await res.json();
+        document.getElementById('status').textContent = 
+          'Status: ' + res.status + ' ' + JSON.stringify(body).slice(0, 100);
+      } catch(err) {
+        document.getElementById('status').textContent = 
+          'Error: ' + err.message + ' type: ' + typeof err;
+      }
+    };
+  </script>
+</body>
+</html>

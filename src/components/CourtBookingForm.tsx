@@ -32,13 +32,23 @@ export function CourtBookingForm() {
 
     try {
       const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+      const postData = { ...formData };
+      console.log('[SUBMIT] apiBase:', apiBase, 'url:', `${apiBase}/api/court-bookings`);
+      console.log('[SUBMIT] body:', postData);
+      
       const response = await fetch(`${apiBase}/api/court-bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(postData),
       });
 
+      console.log('[SUBMIT] response status:', response.status, 'ok:', response.ok);
+      console.log('[SUBMIT] response headers:', response.headers.get('content-type'));
+
       if (response.ok) {
+        console.log('[SUBMIT] success - calling .json() ...');
+        const data = await response.json();
+        console.log('[SUBMIT] parsed data:', data);
         setSubmitStatus('success');
         setFormData({
           bookingType: '',
@@ -53,10 +63,20 @@ export function CourtBookingForm() {
           additionalNotes: '',
         });
       } else {
+        console.log('[SUBMIT] response not ok, status:', response.status);
+        console.log('[SUBMIT] trying to read error body...');
+        try {
+          const errorBody = await response.json();
+          console.log('[SUBMIT] error body:', errorBody);
+        } catch (e) {
+          console.log('[SUBMIT] failed to parse error JSON');
+          const text = await response.text();
+          console.log('[SUBMIT] error text:', text?.slice(0, 200));
+        }
         setSubmitStatus('error');
       }
     } catch (error) {
-      console.error('Failed to submit booking request:', error);
+      console.error('[SUBMIT] throw error:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);

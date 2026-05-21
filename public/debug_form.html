@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <title>Court Booking API Form Submit Test (debug)</title>
+</head>
+<body>
+  <h2>Test Court Booking API Endpoint</h2>
+  <form id="testForm">
+    <input name="bookingType" value="team" placeholder="Booking Type"><br>
+    <input name="date" type="date" value="2026-05-22"><br>
+    <input name="startTime" type="time" value="10:00"><br>
+    <input name="endTime" type="time" value="12:00"><br>
+    <input name="courtType" value="basketball"><br>
+    <input name="fullName" id="fullName" value="test"><br>
+    <input name="phoneNumber" id="phoneNumber" value="1234567"><br>
+    <input name="email" type="email" value="t@t.com"><br>
+    <input name="purpose" value="practice"><br>
+    <input name="additionalNotes" value="test notes"><br>
+    <button type="submit">Submit Booking</button>
+  </form>
+  <div>
+    <button onclick="testHealth()">Test /api/health GET</button>
+    <button onclick="testCourtBookingsGET()">Test /api/court-bookings GET</button>
+    <pre id="status">Ready</pre>
+  </div>
+  <script>
+    const s = (msg) => { document.getElementById('status').textContent += '\n' + msg; console.log(msg); };
+    
+    async function testHealth() {
+      const res = await fetch('/api/health');
+      const body = await res.json();
+      s('health GET: ' + res.status + ' ' + JSON.stringify(body));
+    }
+    
+    async function testCourtBookingsGET() {
+      const res = await fetch('/api/court-bookings');
+      const body = await res.json();
+      s('court-bookings GET: ' + res.status + ' length=' + JSON.stringify(body).length);
+    }
+
+    document.getElementById('testForm').onsubmit = async (e) => {
+      e.preventDefault();
+      s('--- FORM SUBMIT START ---');
+      const form = e.target;
+      const data = {};
+      
+      // Use FormData
+      const formData = new FormData(form);
+      formData.forEach((v, k) => { data[k] = v; });
+      
+      s('data: ' + JSON.stringify(data));
+      
+      try {
+        s('fetch() starting...');
+        const res = await fetch('/api/court-bookings', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        });
+        s('response.status: ' + res.status);
+        s('response.ok: ' + res.ok);
+        s('response.contentType: ' + res.headers.get('content-type'));
+        
+        try {
+          const json = await res.json();
+          s('SUCCESS JSON: ' + JSON.stringify(json).slice(0, 80));
+          s('✅ POST SUCCESS');
+        } catch (e) {
+          const text = await res.text();
+          s('JSON PARSE ERROR: ' + e.message);
+          s('response text (first 200): ' + text.slice(0, 200));
+          s('❌ POST FAILED - JSON parse error');
+        }
+      } catch (err) {
+        s('FETCH THROW: ' + err.message + ' (' + err.name + ')');
+        s('❌ POST FAILED - fetch throw');
+      }
+      s('--- FORM SUBMIT END ---');
+    };
+  </script>
+</body>
+</html>

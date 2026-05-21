@@ -1,0 +1,25 @@
+◇ injected env (2) from .env // tip: ⌘ override existing { override: true }
+Mongoose successfully imported
+Connected to MongoDB
+Database models initialized
+Server running on http://localhost:3000
+[GET] /api/health -> 200 (4ms)
+[court-bookings POST] Body: {"bookingType":"team","date":"2026-05-22","startTime":"10:00","endTime":"12:00","courtType":"basketball","fullName":"Test","phoneNumber":"1234567890","purpose":"practice"}
+New court booking submitted: Test for 2026-05-22
+[POST] /api/court-bookings -> 201 (23ms)
+[court-bookings POST] Body: {"bookingType":"team","date":"2026-05-22","startTime":"10:00","endTime":"12:00","courtType":"basketball","fullName":"test","phoneNumber":"1234567","purpose":"practice"}
+New court booking submitted: test for 2026-05-22
+[POST] /api/court-bookings -> 201 (14ms)
+[court-bookings POST] Body: {"bookingType":"team","date":"2026-05-22","startTime":"10:00","endTime":"12:00","courtType":"basketball","fullName":"Test Browser","phoneNumber":"1234567890","purpose":"practice"}
+New court booking submitted: Test Browser for 2026-05-22
+[POST] /api/court-bookings -> 201 (19ms)
+[GET] /@vite/client -> 200 (47ms)
+[GET] /index.html -> 200 (46ms)
+[GET] /@vite/client -> 200 (17ms)
+[GET] /test_form.html -> 200 (2ms)
+[GET] /test_form.html -> 200 (1ms)
+[GET] /test_form.html -> 200 (3ms)
+[GET] /test_form.html -> 200 (2ms)
+[court-bookings POST] Body: {"bookingType":"team","date":"2026-05-22","startTime":"10:00","endTime":"12:00","courtType":"basketball","fullName":"Test","phoneNumber":"123456","purpose":"practice"}
+New court booking submitted: Test for 2026-05-22
+[POST] /api/court-bookings -> 201 (21ms)

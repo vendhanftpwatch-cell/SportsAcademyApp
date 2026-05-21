@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <button id="test">Test API</button>
+  <pre id="result"></pre>
+  <script>
+    apiBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL) || '';
+    document.getElementById('test').onclick = async () => {
+        const result = document.getElementById('result');
+        try {
+            const response = await fetch(apiBase + '/api/court-bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({bookingType:"team",date:"2026-05-22",startTime:"10:00",endTime:"12:00",courtType:"basketball",fullName:"Test",phoneNumber:"1234567890",purpose:"practice"})
+            });
+            const text = await response.text();
+            result.textContent = `Status: ${response.status}\nBody: ${text}`;
+        } catch (err) {
+            result.textContent = `Error: ${err.message}`;
+        }
+    };
+  </script>
+</body>
+</html>

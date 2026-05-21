@@ -181,6 +181,17 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+  
+  // Request/response logger
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on("finish", () => {
+      console.log(`[${req.method}] ${req.path} -> ${res.statusCode} (${Date.now() - start}ms)`);
+    });
+    next();
+  });
+
+  // CORS middleware
 
   // CORS middleware
   app.use((req, res, next) => {
@@ -522,6 +533,23 @@ async function startServer() {
     res.json({ status: "ok", db: dbConnected, modelsInitialized: !!Student, mongooseReadyState: readyState });
   });
 
+  // 404 handler for unmatched routes
+  app.use((req, res) => {
+    console.log(`[404] ${req.method} ${req.path} - no matching route`);
+    res.status(404).json({ error: "Route not found" });
+  });
+
+  // Global error handler - catches any unhandled errors
+  app.use((err, req, res, next) => {
+    console.error(`[500 ERROR] ${req.method} ${req.path}:`, err.message);
+    console.error(err.stack);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Internal server error", detail: err.message });
+    } else {
+      next(err);
+    }
+  });
+
   // --- Vite Middleware ---
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -534,6 +562,17 @@ async function startServer() {
         include: []
       }
     });
+    // Add error logging to vite middleware
+    const origMw = vite.middlewares;
+    vite.middlewares = async function(req, res, next) {
+      try {
+        const result = await origMw(req, res, next);
+        return result;
+      } catch (err) {
+        console.error("[VITE ERROR]", req.method, req.path, err.message);
+        throw err;
+      }
+    };
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
