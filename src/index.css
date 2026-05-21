@@ -4,112 +4,254 @@
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
-  
-  --color-primary: #0EA5E9;
-  --color-secondary: #F97316;
+
+  --color-primary: #6366F1;
+  --color-secondary: #F43F5E;
   --color-accent: #8B5CF6;
   --color-success: #22C55E;
-  --color-warning: #FACC15;
+  --color-warning: #F59E0B;
   --color-danger: #EF4444;
-  
-  --color-bento-bg: #f0f9ff;
-  --color-bento-card: #ffffff;
-  --color-bento-border: #e0f2fe;
+  --color-pink: #EC4899;
+  --color-rose: #F43F5E;
+
+  --color-page-bg: #F8FAFC;
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #E2E8F0;
+  --color-sidebar-bg: #FFFFFF;
 }
 
 @layer base {
-  body {
-    @apply bg-bento-bg text-slate-800 font-sans;
+  html {
     -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-page-bg text-slate-800 font-sans;
+    background-color: #F8FAFC;
+    min-height: 100vh;
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
+/* ─── Card System ─── */
 .bento-card {
-  @apply bg-bento-card border border-bento-border shadow-sm rounded-[2rem] transition-all duration-300;
+  @apply bg-card-bg border border-card-border shadow-lg rounded-3xl transition-all duration-300;
 }
 
 .bento-card-hover {
-  @apply hover:shadow-xl hover:shadow-sky-100/50 hover:-translate-y-1;
+  @apply hover:shadow-xl hover:-translate-y-1 hover:border-indigo-300;
 }
 
+.glass-card {
+  @apply bg-white/80 backdrop-blur-lg border border-slate-200 shadow-lg rounded-3xl;
+}
+
+/* ─── Vibrant Gradients ─── */
 .sporty-gradient {
-  background: linear-gradient(135deg, #0EA5E9 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%);
 }
 
 .vibrant-orange {
-  background: linear-gradient(135deg, #F97316 0%, #FACC15 100%);
+  background: linear-gradient(135deg, #F43F5E 0%, #F59E0B 100%);
 }
 
 .vibrant-green {
-  background: linear-gradient(135deg, #22C55E 0%, #10B981 100%);
+  background: linear-gradient(135deg, #22C55E 0%, #06B6D4 100%);
 }
 
+.vibrant-pink {
+  background: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%);
+}
+
+.vibrant-blue {
+  background: linear-gradient(135deg, #6366F1 0%, #0EA5E9 100%);
+}
+
+.vibrant-indigo {
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+}
+
+/* ─── Sidebar ─── */
 .sidebar-gradient {
-  @apply bg-white border-r border-sky-100;
+  background: #FFFFFF;
+  border-right: 1px solid #E2E8F0;
 }
 
-/* Mobile-friendly touch targets */
+/* ─── Soft Shadows ─── */
+.neon-glow {
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.15), 0 8px 48px rgba(139, 92, 246, 0.10);
+}
+
+.neon-primary {
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+}
+
+.neon-success {
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
+}
+
+.neon-danger {
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.2);
+}
+
+/* ─── Touch Targets ─── */
+.mobile-button {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@screen md {
+  .mobile-button {
+    min-height: auto;
+    min-width: auto;
+  }
+}
+
 @media (hover: none) and (pointer: coarse) {
   .bento-card-hover {
-    @apply hover:shadow-sm hover:translate-y-0;
+    @apply hover:shadow-lg hover:translate-y-0;
   }
-  
+
   button, a {
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 48px;
+    min-width: 48px;
   }
 }
 
-/* Responsive adjustments */
+/* ─── Mobile ─── */
 @media (max-width: 768px) {
   .bento-card {
-    @apply rounded-3xl;
+    @apply rounded-3xl shadow-md;
   }
-  
+
   .rounded-\[2\.5rem\] {
     border-radius: 1.5rem !important;
   }
-  
+
   .rounded-\[2rem\] {
     border-radius: 1.25rem !important;
   }
+
+  .mobile-content {
+    padding: 1rem;
+  }
+
+  main {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
 }
 
-/* Extra small devices - mobile portrait */
 @media (max-width: 480px) {
   .xs\:grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
   }
-  
+
   .mobile-scroll-x {
     -webkit-overflow-scrolling: touch;
   }
-}
 
-/* Safe area insets for mobile devices with notches */
-@supports (padding: max(0px)) {
-  .safe-area-inset {
-    padding-left: max(1rem, env(safe-area-inset-left));
-    padding-right: max(1rem, env(safe-area-inset-right));
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  .mobile-padding {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 }
 
-/* Responsive text sizing */
+@supports (padding: max(0px)) {
+  .safe-area-inset {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
 @media (max-width: 640px) {
   .responsive-heading {
     @apply text-2xl;
   }
-  
+
   .responsive-subheading {
     @apply text-base;
   }
+
+  .mobile-text-sm {
+    font-size: 0.875rem;
+  }
 }
 
-/* Mobile grid adjustments */
 @media (max-width: 640px) {
   .mobile-grid-single {
     grid-template-columns: 1fr !important;
   }
 }
 
+.mobile-nav-item {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+/* ─── Rating / Progress Fill ─── */
+.progress-bar {
+  @apply h-2.5 rounded-full overflow-hidden bg-slate-100;
+}
+
+.progress-bar .progress-fill {
+  @apply h-full rounded-full;
+}
+
+/* ─── Label styling ─── */
+.label-xs {
+  @apply text-[10px] font-black uppercase tracking-widest text-slate-400;
+}
+
+/* ─── Scrollbar (light) ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6366F1, #8B5CF6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4F46E5, #7C3AED);
+}
+
+/* ─── Tablet / Desktop sticky header ─── */
+.main-content {
+  padding-top: 1rem;
+  padding-bottom: 5rem;
+}
+
+@media screen and (min-width: 768px) {
+  .main-content {
+    padding-bottom: 2rem;
+  }
+}
+
+/* ─── Status Criers ─── */
+.pulse-dot {
+  @apply relative;
+}
+
+.pulse-dot::after {
+  content: '';
+  @apply absolute inset-0 rounded-full animate-ping bg-current opacity-50;
+}

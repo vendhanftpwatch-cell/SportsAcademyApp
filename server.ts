@@ -399,6 +399,48 @@ async function startServer() {
     }
   });
 
+  // Schedules CRUD
+  app.get("/api/schedules", async (req, res) => {
+    try {
+      if (!Schedule) return res.json([]);
+      const schedules = await Schedule.find();
+      res.json(schedules);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch schedules" });
+    }
+  });
+
+  app.post("/api/schedules", async (req, res) => {
+    try {
+      if (!Schedule) return res.status(503).json({ error: "Database not available" });
+      const schedule = new Schedule(req.body);
+      await schedule.save();
+      res.status(201).json(schedule);
+    } catch (err) {
+      res.status(400).json({ error: "Failed to create schedule" });
+    }
+  });
+
+  app.put("/api/schedules/:id", async (req, res) => {
+    try {
+      if (!Schedule) return res.status(503).json({ error: "Database not available" });
+      const schedule = await Schedule.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.json(schedule);
+    } catch (err) {
+      res.status(400).json({ error: "Failed to update schedule" });
+    }
+  });
+
+  app.delete("/api/schedules/:id", async (req, res) => {
+    try {
+      if (!Schedule) return res.status(503).json({ error: "Database not available" });
+      await Schedule.findByIdAndDelete(req.params.id);
+      res.json({ message: "Schedule deleted" });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to delete schedule" });
+    }
+  });
+
   // Basic Status
   app.get("/api/health", (req, res) => {
     const readyState = mongoose ? (mongoose.connection && mongoose.connection.readyState) : null;

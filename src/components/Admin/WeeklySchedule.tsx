@@ -118,7 +118,7 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
         {isAdmin && (
           <button 
             onClick={handleOpenAdd}
-            className="sporty-gradient text-white px-8 py-4 rounded-[2rem] font-bold shadow-xl shadow-blue-100 flex items-center gap-2 hover:scale-105 transition-transform active:scale-95"
+            className="sporty-gradient text-white px-8 py-4 rounded-[2rem] font-bold shadow-lg shadow-indigo-500/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform"
           >
             <Plus size={20} /> Add Session
           </button>
@@ -129,7 +129,7 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
         {DAYS.map((day) => {
           const dayItems = schedules.filter(s => s.day === day);
           return (
-            <div key={day} className="bento-card p-8">
+            <div key={day} className="bento-card p-8 shadow-sm">
               <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-3">
                 <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                 {day}
@@ -145,19 +145,19 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
                       layout
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="p-5 bg-sky-50/50 rounded-3xl border border-sky-100 relative group"
+                      className="p-5 bg-indigo-50/30 rounded-3xl border border-indigo-100 relative group"
                     >
                       {isAdmin && (
                         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
                             onClick={() => handleOpenEdit(item)}
-                            className="p-2 text-slate-400 hover:text-primary transition-colors bg-white rounded-xl shadow-sm border border-slate-100"
+                            className="p-2 text-slate-400 hover:text-primary transition-colors bg-white rounded-xl shadow-sm border border-slate-200"
                           >
                             <Save size={14} className="rotate-0" />
                           </button>
                           <button 
                             onClick={() => handleDelete(item._id)}
-                            className="p-2 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-xl shadow-sm border border-slate-100"
+                            className="p-2 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-xl shadow-sm border border-slate-200"
                            >
                             <Trash2 size={14} />
                           </button>
@@ -165,7 +165,7 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
                       )}
                       
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="bg-white p-2 rounded-xl border border-sky-100 shadow-sm text-primary">
+                        <div className="bg-white p-2 rounded-xl border border-indigo-100 shadow-sm text-primary">
                           <Clock size={16} />
                         </div>
                         <span className="font-black text-slate-800 text-sm tracking-tight">{item.time}</span>
@@ -205,7 +205,7 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
               className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl p-10"
             >
               <div className="flex items-center justify-between mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-sky-50 flex items-center justify-center text-primary shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-primary shadow-inner">
                   <Calendar size={28} />
                 </div>
                 <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400"><X size={20} /></button>
@@ -223,7 +223,7 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
                     <select 
                       value={formData.day}
                       onChange={e => setFormData({...formData, day: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
+                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     >
                       {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
@@ -234,7 +234,7 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
                       type="text" required placeholder="06:00 AM"
                       value={formData.startTime}
                       onChange={e => setFormData({...formData, startTime: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -243,7 +243,7 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
                       type="text" required placeholder="08:00 AM"
                       value={formData.endTime}
                       onChange={e => setFormData({...formData, endTime: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
                 </div>
@@ -254,7 +254,7 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
                     type="text" required placeholder="e.g. Volleyball Net Practice"
                     value={formData.activity}
                     onChange={e => setFormData({...formData, activity: e.target.value})}
-                    className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                   />
                 </div>
 
@@ -265,7 +265,7 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
                       type="text" required
                       value={formData.coach}
                       onChange={e => setFormData({...formData, coach: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -274,12 +274,12 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
                       type="text" required
                       value={formData.location}
                       onChange={e => setFormData({...formData, location: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
                 </div>
 
-                <button type="submit" className="w-full h-16 sporty-gradient text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-100 mt-4 active:scale-95 transition-all flex items-center justify-center gap-3">
+                <button type="submit" className="w-full h-16 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20 mt-4 active:scale-95 transition-all flex items-center justify-center gap-3">
                   <Save size={20} /> Save to Schedule
                 </button>
               </form>

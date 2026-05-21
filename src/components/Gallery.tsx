@@ -26,7 +26,7 @@ export function Gallery() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="group relative h-64 sm:h-72 rounded-[2rem] sm:rounded-[32px] overflow-hidden shadow-sm hover:shadow-xl transition-all cursor-pointer"
+            className="group relative h-64 sm:h-72 rounded-[2rem] sm:rounded-[32px] overflow-hidden shadow-md bento-card bento-card-hover cursor-pointer touch-target"
           >
             <img 
               src={img.url} 
@@ -35,12 +35,12 @@ export function Gallery() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-6 sm:p-8">
               <p className="text-white font-black uppercase text-xs md:text-sm tracking-widest mb-1">{img.title}</p>
-              <div className="flex items-center gap-2 text-white/60">
+              <div className="flex items-center gap-2 text-primary">
                 <Maximize2 size={12} className="md:w-3.5 md:h-3.5" />
                 <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest">Enlarge Moment</span>
               </div>
             </div>
-            <div className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-md">
               <ImageIcon size={16} className="sm:w-4.5 sm:h-4.5" />
             </div>
           </motion.div>

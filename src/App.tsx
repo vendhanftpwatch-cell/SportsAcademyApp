@@ -20,6 +20,8 @@ import { CoachPay } from './components/CoachModule/CoachPay';
 import { Settings } from './components/Settings';
 import { AdminPanel } from './components/Admin/AdminPanel';
 import { WeeklySchedule } from './components/Admin/WeeklySchedule';
+import { CourtBooking } from './components/CourtBooking';
+import { CourtBookingAdmin } from './components/Admin/CourtBookingAdmin';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 
@@ -47,63 +49,74 @@ export default function App() {
 
   return (
     <Router>
-      <div className="flex min-h-screen bg-bento-bg">
+      <div className="flex min-h-screen bg-slate-50">
         <Sidebar isAdmin={isAuthenticated} mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden safe-area-inset">
-          <div className="md:hidden flex justify-between items-center mb-4 px-2">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden safe-area-inset pb-24 md:pb-8 main-content">
+          <div className="md:hidden flex justify-between items-center mb-3 px-1">
             <button 
               onClick={() => setMobileMenuOpen(true)}
-              className="p-3 rounded-xl bg-white shadow-md border border-sky-100 min-h-[44px] min-w-[44px]"
+              className="md:hidden flex items-center gap-2 px-4 py-3 rounded-2xl bg-primary text-white shadow-lg shadow-indigo-500/25 touch-target active:scale-95 transition-transform"
               aria-label="Open menu"
             >
-              <Menu size={24} className="text-slate-700" />
+              <Menu size={20} className="text-white" />
+              <span className="font-black text-[10px] uppercase tracking-widest text-white">Menu</span>
             </button>
           </div>
-          <AnimatePresence mode="wait">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Dashboard isAdmin={isAuthenticated} />} />
-              <Route path="/sports" element={<SportsList isAdmin={isAuthenticated} />} />
-              <Route path="/summer-camp" element={<SummerCamp />} />
-              <Route path="/events" element={<UpcomingEvents isAdmin={isAuthenticated} />} />
-              <Route path="/attendance/students" element={<StudentAttendance isAdmin={isAuthenticated} />} />
-              <Route path="/schedule" element={<WeeklySchedule isAdmin={isAuthenticated} />} />
-              <Route path="/students/archive" element={<StudentArchive isAdmin={isAuthenticated} />} />
-              <Route path="/students/list" element={<StudentArchive isAdmin={isAuthenticated} />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/login" element={!isAuthenticated ? <Login onLogin={() => handleLogin(true)} /> : <Navigate to="/" replace />} />
-              
-              {/* Admin Gateway */}
-              <Route 
-                path="/admin" 
-                element={isAuthenticated ? <AdminPanel /> : <Navigate to="/login" replace />} 
-              />
-              
-              {/* Protected Admin Detail Routes */}
-              <Route 
-                path="/attendance/coaches" 
-                element={isAuthenticated ? <CoachAttendance /> : <Navigate to="/login" replace />} 
-              />
-              <Route 
-                path="/coaches" 
-                element={<CoachManagement isAdmin={isAuthenticated} />} 
-              />
-              <Route 
-                path="/coaches/pay" 
-                element={isAuthenticated ? <CoachPay /> : <Navigate to="/login" replace />} 
-              />
-              <Route 
-                path="/settings" 
-                element={isAuthenticated ? <Settings /> : <Navigate to="/login" replace />} 
-              />
-              <Route 
-                path="/fees" 
-                element={isAuthenticated ? <StudentFees /> : <Navigate to="/login" replace />} 
-              />
-              
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </AnimatePresence>
+           <AnimatePresence mode="wait">
+             <Routes>
+               {/* Public Routes */}
+               <Route path="/" element={<Dashboard isAdmin={isAuthenticated} />} />
+               <Route path="/sports" element={<SportsList isAdmin={isAuthenticated} />} />
+               <Route path="/summer-camp" element={<SummerCamp />} />
+               <Route path="/events" element={<UpcomingEvents isAdmin={isAuthenticated} />} />
+               <Route path="/schedule" element={<WeeklySchedule isAdmin={isAuthenticated} />} />
+               <Route path="/gallery" element={<Gallery />} />
+               <Route path="/court-booking" element={<CourtBooking isAdmin={isAuthenticated} />} />
+               <Route path="/login" element={!isAuthenticated ? <Login onLogin={() => handleLogin(true)} /> : <Navigate to="/" replace />} />
+               
+               {/* Admin Gateway */}
+               <Route 
+                 path="/admin" 
+                 element={isAuthenticated ? <AdminPanel /> : <Navigate to="/login" replace />} 
+               />
+               
+               {/* Protected Admin Detail Routes */}
+               <Route 
+                 path="/attendance/coaches" 
+                 element={isAuthenticated ? <CoachAttendance /> : <Navigate to="/login" replace />} 
+               />
+               <Route 
+                 path="/attendance/students" 
+                 element={isAuthenticated ? <StudentAttendance /> : <Navigate to="/login" replace />} 
+               />
+               <Route 
+                 path="/coaches" 
+                 element={<CoachManagement isAdmin={isAuthenticated} />} 
+               />
+               <Route 
+                 path="/coaches/pay" 
+                 element={isAuthenticated ? <CoachPay /> : <Navigate to="/login" replace />} 
+               />
+               <Route 
+                 path="/settings" 
+                 element={isAuthenticated ? <Settings /> : <Navigate to="/login" replace />} 
+               />
+               <Route 
+                 path="/fees" 
+                 element={isAuthenticated ? <StudentFees /> : <Navigate to="/login" replace />} 
+               />
+               <Route 
+                 path="/students/archive" 
+                 element={isAuthenticated ? <StudentArchive /> : <Navigate to="/login" replace />} 
+               />
+               <Route 
+                 path="/students/list" 
+                 element={isAuthenticated ? <StudentArchive /> : <Navigate to="/login" replace />} 
+               />
+               
+               <Route path="*" element={<Navigate to="/" replace />} />
+             </Routes>
+           </AnimatePresence>
         </main>
       </div>
     </Router>

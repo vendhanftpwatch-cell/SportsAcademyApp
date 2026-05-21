@@ -106,7 +106,7 @@ export function CoachPay() {
             {loading ? (
               [1, 2, 3].map(i => <div key={i} className="h-24 bg-slate-50/50 animate-pulse rounded-3xl" />)
             ) : payments.length === 0 ? (
-              <div className="p-12 text-center glass-card border-dashed">
+              <div className="p-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 shadow-sm">
                 <History className="mx-auto text-slate-200 mb-4" size={48} />
                 <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No transaction history found</p>
               </div>
@@ -115,10 +115,10 @@ export function CoachPay() {
                 key={payment._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white border border-slate-50 p-6 rounded-3xl flex items-center justify-between shadow-sm hover:shadow-md transition-all group"
+                className="bg-white border border-slate-100 p-6 rounded-3xl flex items-center justify-between shadow-sm hover:shadow-md hover:border-indigo-100 transition-all group"
               >
                 <div className="flex items-center gap-5">
-                  <div className="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-500">
+                  <div className="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-500 border border-green-100">
                     <CheckCircle2 size={24} />
                   </div>
                   <div>
@@ -137,7 +137,7 @@ export function CoachPay() {
 
         <div className="space-y-6">
           <h3 className="font-black text-[11px] uppercase tracking-[0.2em] text-slate-400">Coach List</h3>
-          <div className="bg-white border border-slate-50 rounded-[32px] p-6 shadow-sm divide-y divide-slate-50">
+          <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm divide-y divide-slate-100">
             {coaches.map(coach => (
               <div key={coach._id} className="py-5 first:pt-0 last:pb-0 flex items-center justify-between group">
                 <div>
@@ -150,7 +150,7 @@ export function CoachPay() {
                     setFormData({ ...formData, amount: coach.salary });
                     setShowPayModal(true);
                   }}
-                  className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95"
+                  className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95 border border-slate-200"
                 >
                   <Plus size={18} />
                 </button>
@@ -170,10 +170,10 @@ export function CoachPay() {
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-md bg-white rounded-[40px] shadow-2xl p-10"
+              className="relative w-full max-w-md bg-white rounded-[40px] shadow-2xl p-10 border border-slate-100"
             >
               <div className="flex items-center justify-between mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-sky-50 flex items-center justify-center text-primary mb-4 shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
                   <Wallet size={28} />
                 </div>
                 <button onClick={() => setShowPayModal(false)} className="p-2 hover:bg-slate-50 rounded-xl text-slate-400"><X size={20} /></button>
@@ -189,7 +189,7 @@ export function CoachPay() {
                     type="number" required
                     value={formData.amount}
                     onChange={e => setFormData({...formData, amount: parseInt(e.target.value)})}
-                    className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-black text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none text-xl"
+                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-black text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none text-xl"
                   />
                 </div>
 
@@ -199,12 +199,12 @@ export function CoachPay() {
                     type="text" required
                     value={formData.month}
                     onChange={e => setFormData({...formData, month: e.target.value})}
-                    className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none"
+                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none"
                     placeholder="e.g. May 2024"
                   />
                 </div>
 
-                <button type="submit" className="w-full h-16 sporty-gradient text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-100 mt-4 active:scale-95 transition-all flex items-center justify-center gap-3">
+                <button type="submit" className="w-full h-16 sporty-gradient text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20 mt-4 active:scale-95 transition-all flex items-center justify-center gap-3">
                   <Save size={20} /> Authorize Payment
                 </button>
               </form>

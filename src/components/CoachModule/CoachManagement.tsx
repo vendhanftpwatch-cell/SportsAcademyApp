@@ -89,7 +89,7 @@ export function CoachManagement({ isAdmin = false }: CoachManagementProps) {
            {isAdmin && (
              <button 
                onClick={() => setShowAddModal(true)}
-               className="bg-indigo-600 text-white px-5 md:px-8 py-2.5 md:py-3.5 rounded-2xl md:rounded-3xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-transform active:scale-95 min-h-[40px] md:min-h-[44px]"
+               className="bg-indigo-600 text-white px-5 md:px-8 py-2.5 md:py-3.5 rounded-2xl md:rounded-3xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-transform min-h-[40px] md:min-h-[44px]"
              >
                + RECRUIT COACH
              </button>
@@ -99,19 +99,19 @@ export function CoachManagement({ isAdmin = false }: CoachManagementProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {loading ? (
-          [1, 2].map(i => <div key={i} className="h-60 md:h-64 bento-card animate-pulse shadow-sm" />)
+          [1, 2].map(i => <div key={i} className="h-60 md:h-64 bento-card animate-pulse" />)
         ) : coaches.map((coach, i) => (
           <motion.div 
             key={coach._id || i}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="bento-card p-4 md:p-8 group bento-card-hover relative"
+            className="bento-card p-4 md:p-8 group bento-card-hover relative shadow-sm"
           >
             {isAdmin && (
               <button 
                 onClick={() => deleteCoach(coach._id)}
-                className="absolute top-4 md:top-6 right-4 md:right-6 p-1.5 md:p-2 text-slate-200 hover:text-red-500 transition-colors z-20"
+                className="absolute top-4 md:top-6 right-4 md:right-6 p-1.5 md:p-2 text-slate-300 hover:text-red-500 transition-colors z-20"
               >
                 <Trash2 size={16} className="md:w-4.5 md:h-4.5" />
               </button>
@@ -136,25 +136,25 @@ export function CoachManagement({ isAdmin = false }: CoachManagementProps) {
 
                 <div className="grid grid-cols-1 xs:grid-cols-2 gap-y-3 md:gap-y-4 gap-x-4 md:gap-x-8">
                   <div className="flex items-center gap-2 text-slate-500">
-                    <Award size={16} className="md:w-4.5 md:h-4.5 text-sky-300" />
+                    <Award size={16} className="md:w-4.5 md:h-4.5 text-indigo-400" />
                     <span className="text-xs md:text-sm font-bold">{coach.experience} Exp.</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-500">
-                    <Phone size={16} className="md:w-4.5 md:h-4.5 text-sky-300" />
+                    <Phone size={16} className="md:w-4.5 md:h-4.5 text-indigo-400" />
                     <span className="text-xs md:text-sm font-bold">{coach.phone}</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-500">
-                    <Clock size={16} className="md:w-4.5 md:h-4.5 text-sky-300" />
+                    <Clock size={16} className="md:w-4.5 md:h-4.5 text-indigo-400" />
                     <span className="text-xs md:text-sm font-bold">{coach.workingHours}</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-500">
-                    <Calendar size={16} className="md:w-4.5 md:h-4.5 text-sky-300" />
+                    <Calendar size={16} className="md:w-4.5 md:h-4.5 text-indigo-400" />
                     <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-[10px] md:text-[11px]">Since {coach.joiningDate}</span>
                   </div>
                 </div>
 
                 {isAdmin && (
-                  <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-50 flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 xs:gap-0">
+                  <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-slate-100 flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 xs:gap-0">
                     <div>
                       <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Salary</p>
                       <div className="flex items-center gap-1 text-slate-800">
@@ -165,13 +165,13 @@ export function CoachManagement({ isAdmin = false }: CoachManagementProps) {
                     <div className="flex flex-col xs:flex-row gap-2">
                        <button 
                          onClick={() => navigate('/attendance/coaches')}
-                         className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[10px] font-black bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition-colors uppercase tracking-widest min-h-[36px]"
+                         className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[10px] font-black bg-indigo-50 text-primary hover:bg-primary hover:text-white transition-colors uppercase tracking-widest min-h-[36px]"
                        >
                          Attendance
                        </button>
                        <button 
                          onClick={() => navigate('/coaches/pay')}
-                         className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[10px] font-black bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors uppercase tracking-widest min-h-[36px]"
+                         className="px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[10px] font-black bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors uppercase tracking-widest min-h-[36px]"
                        >
                          Payrolls
                        </button>
@@ -201,12 +201,12 @@ export function CoachManagement({ isAdmin = false }: CoachManagementProps) {
               <input 
                 type="text" placeholder="Full Name" required
                 value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
               />
               <div className="grid grid-cols-2 gap-4">
                 <select 
                   value={formData.sport} onChange={e => setFormData({...formData, sport: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                  className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
                 >
                   <option>Football</option>
                   <option>Tennis</option>
@@ -216,28 +216,28 @@ export function CoachManagement({ isAdmin = false }: CoachManagementProps) {
                 <input 
                   type="text" placeholder="Experience" required
                   value={formData.experience} onChange={e => setFormData({...formData, experience: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                  className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
                 />
               </div>
               <input 
                 type="email" placeholder="Email Address" required
                 value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
               />
               <input 
                 type="tel" placeholder="Phone Number" required
                 value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
-                className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
               />
               <div className="space-y-1">
                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Monthly Salary (₹)</label>
                  <input 
-                  type="number" required
-                  value={formData.salary} onChange={e => setFormData({...formData, salary: parseInt(e.target.value)})}
-                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-black outline-none ring-primary/20 focus:ring-2"
-                />
+                   type="number" required
+                   value={formData.salary} onChange={e => setFormData({...formData, salary: parseInt(e.target.value)})}
+                   className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-black outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
+                 />
               </div>
-              <button type="submit" className="w-full h-14 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest mt-4 hover:bg-indigo-700 transition-colors">
+              <button type="submit" className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase tracking-widest mt-4 transition-colors">
                 Confirm Recruitment
               </button>
             </form>

@@ -223,12 +223,12 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
           {isAdmin && (
             <button 
               onClick={() => setShowAddModal(true)}
-              className="h-12 bg-primary text-white px-6 rounded-2xl flex items-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-100 hover:scale-105 transition-transform"
+              className="h-12 bg-primary text-white px-6 rounded-2xl flex items-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:opacity-90 active:scale-[0.98] transition-all"
             >
               <UserPlus size={16} /> Add Student
             </button>
           )}
-          <button className="h-12 bg-white border border-sky-100 px-6 rounded-2xl text-slate-400 hover:text-primary transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-sm hover:shadow-md">
+          <button className="h-12 bg-white border border-slate-200 px-6 rounded-2xl text-slate-500 hover:text-primary hover:border-primary/30 transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-sm hover:shadow-md">
             <Download size={16} /> Export
           </button>
         </div>
@@ -278,7 +278,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
             <select 
               value={selectedSport}
               onChange={(e) => setSelectedSport(e.target.value)}
-              className="bg-blue-50 border-none rounded-xl text-xs font-black text-primary px-4 py-2 outline-none uppercase tracking-widest"
+              className="bg-indigo-50 border border-indigo-100 rounded-xl text-xs font-black text-primary px-4 py-2 outline-none uppercase tracking-widest"
             >
               <option>All Sports</option>
               <option>Football</option>
@@ -288,7 +288,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
             </select>
           </div>
 
-          <div className="h-8 w-px bg-slate-100" />
+          <div className="h-8 w-px bg-slate-200" />
 
           <div className="flex gap-6">
             <div className="flex items-center gap-1.5">
@@ -296,37 +296,37 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Present</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
+              <div className="w-3 h-3 rounded-full bg-rose-500" />
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Absent</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-orange-400" />
+              <div className="w-3 h-3 rounded-full bg-warning" />
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Leave</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bento-card overflow-hidden border-sky-100/50 shadow-sm">
+      <div className="bento-card overflow-hidden border-slate-200/50 shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1240px]">
             <thead>
-              <tr className="bg-sky-50/50">
-                <th className="sticky left-0 z-20 bg-sky-50/50 p-6 border-b border-sky-100 font-display font-black text-[11px] uppercase tracking-widest text-slate-500 min-w-[260px]">Student Name</th>
+              <tr className="bg-indigo-50/50">
+                <th className="sticky left-0 z-20 bg-indigo-50/50 p-6 border-b border-indigo-100 font-display font-black text-[11px] uppercase tracking-widest text-slate-500 min-w-[260px]">Student Name</th>
                 {days.map(day => (
-                  <th key={day} className="p-2 border-b border-sky-100 text-center font-black text-[10px] text-slate-400 min-w-[40px]">{day}</th>
+                  <th key={day} className="p-2 border-b border-indigo-100 text-center font-black text-[10px] text-slate-400 min-w-[40px]">{day}</th>
                 ))}
-                <th className="p-4 border-b border-sky-100 font-display font-black text-[11px] uppercase tracking-widest text-slate-500 text-center">% Rate</th>
+                <th className="p-4 border-b border-indigo-100 font-display font-black text-[11px] uppercase tracking-widest text-slate-500 text-center">% Rate</th>
               </tr>
             </thead>
             <tbody>
               {filteredStudents.map(student => (
-                <tr key={student._id} className="hover:bg-sky-50/30 transition-colors group">
-                  <td className="sticky left-0 z-20 bg-white group-hover:bg-sky-50 transition-colors p-6 border-b border-sky-50/50 shadow-[4px_0_10px_-5px_rgba(0,0,0,0.05)]">
+                <tr key={student._id} className="hover:bg-indigo-50/20 transition-colors group">
+                  <td className="sticky left-0 z-20 bg-white group-hover:bg-indigo-50 transition-colors p-6 border-b border-slate-100 shadow-[4px_0_10px_-5px_rgba(0,0,0,0.05)]">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-primary border border-sky-100 shadow-inner group-hover:bg-white transition-colors">
-                          <Check size={18} className="text-sky-300" />
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-inner group-hover:bg-white transition-colors">
+                          <Check size={18} className="text-primary/50" />
                         </div>
                         <div>
                           <p className="font-black text-slate-800 tracking-tight">{student.firstName} {student.lastName}</p>
@@ -357,13 +357,13 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
                   {days.map(day => {
                     const status = getStatus(student._id, day);
                     return (
-                      <td key={day} className="p-1 border-b border-slate-50 text-center">
+                      <td key={day} className="p-1 border-b border-slate-100 text-center">
                         <div 
                           onClick={() => toggleStatus(student._id, day)}
                           className={cn(
                             "w-7 h-7 rounded-lg mx-auto flex items-center justify-center transition-all hover:scale-110 cursor-pointer shadow-sm active:scale-95",
                             status === 'present' ? "bg-green-500 text-white" : 
-                            status === 'absent' ? "bg-red-500 text-white" : "bg-orange-400 text-white"
+                            status === 'absent' ? "bg-rose-500 text-white" : "bg-warning text-white"
                           )}
                         >
                           {status === 'present' ? <Check size={14} /> : status === 'absent' ? <X size={14} /> : <Minus size={14} />}
@@ -371,7 +371,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
                       </td>
                     );
                   })}
-                  <td className="p-4 border-b border-slate-50 text-center font-black text-slate-800 text-sm">
+                  <td className="p-4 border-b border-slate-100 text-center font-black text-slate-800 text-sm">
                     {Math.round((days.filter(d => getStatus(student._id, d) === 'present').length / days.length) * 100)}%
                   </td>
                 </tr>
@@ -399,7 +399,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100"
             >
               <div className="p-8">
                 <div className="flex items-center justify-between mb-8">
@@ -426,7 +426,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
                         required
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                        className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-300"
+                        className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-300"
                         placeholder="John"
                       />
                     </div>
@@ -437,7 +437,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
                         required
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                        className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-300"
+                        className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-300"
                         placeholder="Doe"
                       />
                     </div>
@@ -448,7 +448,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
                     <select 
                       value={formData.sport}
                       onChange={(e) => setFormData({ ...formData, sport: e.target.value })}
-                      className="w-full h-14 bg-slate-50 border-none rounded-2xl px-6 font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none"
                     >
                       <option>Football</option>
                       <option>Tennis</option>
@@ -459,7 +459,7 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
 
                   <button 
                     type="submit"
-                    className="w-full h-14 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-blue-100 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    className="w-full h-14 bg-primary hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                   >
                     {editingStudent ? <Save size={16} /> : <Plus size={16} />}
                     {editingStudent ? 'Save Changes' : 'Create Student Record'}
@@ -470,6 +470,6 @@ export function StudentAttendance({ isAdmin = false }: StudentAttendanceProps) {
           </div>
         )}
       </AnimatePresence>
-    </div>
-  );
+     </div>
+   );
 }

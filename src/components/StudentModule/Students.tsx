@@ -111,13 +111,13 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-display font-bold text-slate-800">{isAdmin ? 'Student Archive' : 'Current Student List'}</h2>
+          <h2 className="text-2xl font-display font-bold text-slate-900">{isAdmin ? 'Student Archive' : 'Current Student List'}</h2>
           <p className="text-slate-500 font-medium">Manage and view all student records</p>
         </div>
         {isAdmin && (
           <button 
             onClick={() => setShowAddModal(true)}
-            className="sporty-gradient text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-blue-100 hover:scale-[1.02] active:scale-[0.98] transition-transform"
+            className="sporty-gradient text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.98] transition-transform"
           >
             <Plus size={20} /> Add New Student
           </button>
@@ -132,10 +132,10 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
             placeholder="Search by name or sport..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-slate-100 rounded-2xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+            className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium text-slate-700"
           />
         </div>
-        <button className="glass-card px-4 py-2 flex items-center gap-2 text-slate-500 hover:text-primary transition-colors">
+        <button className="bg-white px-4 py-2 flex items-center gap-2 text-slate-500 hover:text-primary transition-colors shadow-sm border border-slate-200 rounded-2xl hover:border-primary/20">
           <Filter size={18} /> <span className="hidden sm:inline font-bold text-sm">Filters</span>
         </button>
       </div>
@@ -143,13 +143,13 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
       {/* Grid of students */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
         {loading ? (
-          [1, 2, 3].map(i => <div key={i} className="h-64 bento-card animate-pulse bg-slate-100/50" />)
+          [1, 2, 3].map(i => <div key={i} className="h-64 bento-card animate-pulse" />)
         ) : filteredStudents.map((student) => (
           <motion.div 
             key={student._id || student.id}
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bento-card p-0 overflow-hidden group bento-card-hover"
+            className="bento-card p-0 overflow-hidden group bento-card-hover shadow-md"
           >
             <div className="p-8">
                <div className="flex items-start justify-between mb-6">
@@ -173,21 +173,21 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                </div>
 
               <div className="space-y-4">
-                <div className="flex items-center gap-3 text-slate-500">
-                  <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-300">
-                    <User size={16} />
-                  </div>
-                  <span className="text-sm font-bold">{student.parentName || 'N/A'}</span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-500">
-                  <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-300">
-                    <Phone size={16} />
-                  </div>
-                  <span className="text-sm font-bold">{student.phone || 'N/A'}</span>
-                </div>
-              </div>
+                 <div className="flex items-center gap-3 text-slate-500">
+                   <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                     <User size={16} />
+                   </div>
+                   <span className="text-sm font-bold">{student.parentName || 'N/A'}</span>
+                 </div>
+                 <div className="flex items-center gap-3 text-slate-500">
+                   <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                     <Phone size={16} />
+                   </div>
+                   <span className="text-sm font-bold">{student.phone || 'N/A'}</span>
+                 </div>
+               </div>
 
-               <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-between">
+               <div className="mt-8 pt-8 border-t border-slate-100 flex items-center justify-between">
                  <div>
                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Joining Date</p>
                    <p className="text-sm font-bold text-slate-600">
@@ -203,7 +203,7 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                        >
                          <Trash2 size={16} />
                        </button>
-                       <button className="p-2 text-slate-300 hover:text-primary hover:bg-sky-50 rounded-lg transition-all">
+                       <button className="p-2 text-slate-300 hover:text-primary hover:bg-indigo-50 rounded-lg transition-all">
                          <Edit2 size={16} />
                        </button>
                      </>
@@ -230,18 +230,18 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                 <input 
                   type="text" placeholder="Full Name" required
                   value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                  className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
                 />
                 <input 
                   type="number" placeholder="Age" required
                   value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                  className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <select 
                   value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                  className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
                 >
                   <option value="">Select Gender</option>
                   <option value="Male">Male</option>
@@ -251,32 +251,32 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                 <input 
                   type="tel" placeholder="Phone Number" required
                   value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                  className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
                 />
               </div>
               <input 
                 type="email" placeholder="Email Address" required
                 value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
               />
               <input 
                 type="text" placeholder="Address" required
                 value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
-                className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
               />
               <div className="grid grid-cols-2 gap-4">
                 <input 
                   type="text" placeholder="Emergency Contact Name" required
                   value={formData.emergencyContact} onChange={e => setFormData({...formData, emergencyContact: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                  className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
                 />
                 <input 
                   type="tel" placeholder="Emergency Phone" required
                   value={formData.emergencyPhone} onChange={e => setFormData({...formData, emergencyPhone: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border-none rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2"
+                  className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 font-bold outline-none ring-primary/20 focus:ring-2 focus:border-primary text-slate-800"
                 />
               </div>
-              <button type="submit" className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4">
+              <button type="submit" className="w-full h-14 bg-primary hover:bg-indigo-700 text-white rounded-2xl font-black uppercase tracking-widest mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
                 Confirm Registration
               </button>
             </form>
