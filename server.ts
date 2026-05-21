@@ -182,6 +182,15 @@ async function startServer() {
 
   app.use(express.json());
 
+  // CORS middleware
+  app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    if (req.method === "OPTIONS") return res.sendStatus(200);
+    next();
+  });
+
   // --- API Routes ---
 
   // Auth
@@ -469,6 +478,7 @@ async function startServer() {
   });
 
   app.post("/api/court-bookings", async (req, res) => {
+    console.log("[court-bookings POST] Body:", JSON.stringify(req.body));
     try {
       if (!CourtBooking) return res.status(503).json({ error: "Database not available" });
       const booking = new CourtBooking({
