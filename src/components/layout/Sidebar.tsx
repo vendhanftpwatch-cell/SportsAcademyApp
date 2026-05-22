@@ -61,11 +61,11 @@ export function Sidebar({ isAdmin, mobileOpen = false, onClose }: SidebarProps) 
         />
       )}
 
-      <aside className={cn(
-        "w-72 h-screen sticky top-0 flex flex-col p-5 overflow-y-auto transition-all duration-300 z-50 shadow-sm border-r border-card-border",
-        "md:translate-x-0",
-        mobileOpen ? "fixed translate-x-0" : "fixed -translate-x-full md:translate-x-0"
-      )}>
+       <aside className={cn(
+         "w-72 h-screen sticky top-0 flex flex-col p-5 overflow-y-auto transition-all duration-300 z-50 shadow-sm border-r border-card-border bg-sidebar-bg",
+         "md:translate-x-0",
+         mobileOpen ? "fixed translate-x-0" : "fixed -translate-x-full md:translate-x-0"
+       )}>
         <div className="flex items-center justify-between mb-8 px-1">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-md overflow-hidden">
@@ -93,12 +93,12 @@ export function Sidebar({ isAdmin, mobileOpen = false, onClose }: SidebarProps) 
               key={item.path}
               to={item.path}
               onClick={() => onClose?.()}
-              className={({ isActive }) => cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative mobile-nav-item text-[15px]",
-                isActive
-                  ? "bg-primary/10 text-primary font-semibold"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-              )}
+               className={({ isActive }) => cn(
+                 "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative mobile-nav-item text-[15px]",
+                 isActive
+                   ? "bg-primary/10 text-primary font-semibold"
+                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+               )}
             >
               {({ isActive }) => (
                 <>

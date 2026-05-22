@@ -175,6 +175,8 @@ async function connectMongo() {
         email: { type: String },
         purpose: { type: String, required: true },
         additionalNotes: { type: String },
+        amount: { type: Number, default: 0 },
+        paymentStatus: { type: String, default: 'pending' },
         status: { type: String, default: 'pending' }
       }, { timestamps: true });
 
@@ -500,8 +502,30 @@ async function startServer() {
     }
   });
 
-  // Court Bookings CRUD
-  app.get("/api/court-bookings", async (req, res) => {
+// --- Environment Variables for PhonePe ---
+const PHONEPE_MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID?.trim() || "";
+const PHONEPE_API_KEY     = process.env.PHONEPE_API_KEY?.trim() || "";
+const PHONEPE_MODE        = (process.env.PHONEPE_MODE || 'uat').trim().toLowerCase(); // 'uat' | 'production'
+
+const PHONEPE_BASE_URL: Record<string, string> = {
+  sandbox:      'https://api-preprod.phonepe.com/apis/pg-sandbox',
+  uat:          'https://api-preprod.phonepe.com/apis/pg-sandbox',
+  production:   'https://api.phonepe.com/apis/pg',
+};
+
+function phonepePaylinksUrl(): string {
+  const base = PHONEPE_BASE_URL[PHONEPE_MODE] || PHONEPE_BASE_URL.uat;
+  return `${base}/paylinks/v1/pay`;
+}
+
+// --- Basic Auth helper for PhonePe ---
+function phonepeAuthHeader(): string | null {
+  if (!PHONEPE_MERCHANT_ID || !PHONEPE_API_KEY) return null;
+  return 'Basic ' + Buffer.from(`${PHONEPE_MERCHANT_ID}:${PHONEPE_API_KEY}`).toString('base64');
+}
+
+// --- Court Bookings CRUD ---
+app.get("/api/court-bookings", async (req, res) => {
     try {
       if (!CourtBooking) return res.json([]);
       const bookings = await CourtBooking.find();
@@ -547,6 +571,78 @@ async function startServer() {
       res.json({ message: "Court booking deleted" });
     } catch (err) {
       res.status(500).json({ error: "Failed to delete court booking" });
+    }
+  });
+
+  // Create PhonePe Payment Link
+  app.post("/api/create-payment-link", async (req, res) => {
+    try {
+      const auth = phonepeAuthHeader();
+      if (!auth) {
+        return res.status(503).json({ error: "PhonePe credentials not configured on server (set PHONEPE_MERCHANT_ID and PHONEPE_API_KEY in .env)" });
+      }
+
+      const { bookingId, amount, customerName, customerPhone, customerEmail, description } = req.body;
+
+      const amountInPaisa = Math.max(1, Math.round((amount || 0) * 100));          // min ₹0.01
+      const expireAt      = Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000); // 24 h from now
+
+      // Build a unique merchantOrderId — PhonePe allows max 63 chars, only _ and -
+      const merchantOrderId = `SA${Date.now()}`;
+
+      const payload: any = {
+        merchantOrderId,
+        description: description || "Sports Academy Court Booking",
+        amount: amountInPaisa,
+        paymentFlow: {
+          type: "PAYLINK",
+          customerDetails: {
+            name: customerName || "",
+            phoneNumber: customerPhone ? String(customerPhone).replace(/\D/g, '').slice(-10) : "",
+            email: customerEmail || "",
+          },
+          notificationChannels: { SMS: false, EMAIL: false },
+          expireAt,
+        },
+      };
+
+      const response = await fetch(phonepePaylinksUrl(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': auth,
+          'X-MERCHANT-ID': PHONEPE_MERCHANT_ID,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error('[PhonePe] API error:', response.status, errText);
+        return res.status(502).json({ success: false, error: 'PhonePe API error', details: errText.slice(0, 300) });
+      }
+
+      const ppData = await response.json();
+      console.log('[PhonePe] payment link created:', JSON.stringify(ppData));
+
+      // Update booking payment status if bookingId provided
+      if (ppData.orderId && dbConnected && CourtBooking) {
+        try {
+          await CourtBooking.findByIdAndUpdate(bookingId, { paymentStatus: 'initiated', status: 'payment_pending' });
+        } catch (e) {
+          console.warn('[PhonePe] failed to update booking payment status:', e.message);
+        }
+      }
+
+      res.json({
+        success: true,
+        transactionId: ppData.orderId || merchantOrderId,
+        paylinkUrl: ppData.paylinkUrl || '',
+        state: ppData.state,
+      });
+    } catch (err) {
+      console.error('[PhonePe] create-payment-link error:', err);
+      res.status(500).json({ success: false, error: "Failed to create payment link", details: (err instanceof Error ? err.message : '').slice(0, 200) });
     }
   });
 

@@ -14,6 +14,8 @@ interface CourtBookingRequest {
   email?: string;
   purpose: string;
   additionalNotes?: string;
+  amount?: number;
+  paymentStatus?: string;
   status: 'pending' | 'approved' | 'rejected';
   whatsappSent?: boolean;
   createdAt: string;
@@ -187,6 +189,20 @@ export function CourtBookingAdmin() {
                     <span>&#128197; {request.date}</span>
                     <span>&#9200; {timeDisplay}</span>
                     <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-50 text-primary border border-violet-100">{request.courtType}</span>
+                    {request.amount != null && request.amount > 0 && (
+                      <span className="font-bold text-primary">&#x20B9; {request.amount.toLocaleString('en-IN')}</span>
+                    )}
+                    {request.paymentStatus && (
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        request.paymentStatus === 'paid'
+                          ? 'bg-emerald-50 text-success border border-emerald-100'
+                          : request.paymentStatus === 'initiated'
+                          ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                          : 'bg-amber-50 text-amber-700 border border-amber-100'
+                      }`}>
+                        {request.paymentStatus}
+                      </span>
+                    )}
                     <span>&#128241; {request.phoneNumber}</span>
                   </div>
                 </div>
