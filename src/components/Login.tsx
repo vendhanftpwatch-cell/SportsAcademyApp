@@ -18,8 +18,9 @@ export function Login({ onLogin }: LoginProps) {
     setError('');
 
      try {
-        const apiBase = import.meta.env.VITE_API_BASE_URL || '';
-        const response = await fetch(`${apiBase}/api/login`, {
+        const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() || '';
+        const apiUrl = apiBase ? `${apiBase}/api/login` : '/api/login';
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password }),

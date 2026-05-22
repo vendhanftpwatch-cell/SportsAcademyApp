@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { CheckCircle, XCircle, MessageCircle, Trash2, X, Save } from 'lucide-react';
 
 interface CourtBookingRequest {
   _id: string;
@@ -23,19 +25,24 @@ export function CourtBookingAdmin() {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('success');
   const [notificationMessage, setNotificationMessage] = useState('');
+  const [lastUpdated, setLastUpdated] = useState('');
 
   useEffect(() => {
     loadRequests();
+    const interval = setInterval(loadRequests, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const loadRequests = async () => {
-    setLoading(true);
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await fetch(`${apiBase}/api/court-bookings`);
+      setLoading(true);
+      const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() || '';
+      const apiUrl = apiBase ? `${apiBase}/api/court-bookings` : '/api/court-bookings';
+      const response = await fetch(apiUrl);
       if (response.ok) {
         const data = await response.json();
         setRequests(data);
+        setLastUpdated(new Date().toLocaleTimeString());
       } else {
         console.error('Failed to fetch bookings:', response.status);
         setRequests([]);
@@ -51,8 +58,9 @@ export function CourtBookingAdmin() {
     const handleAction = async (id: string, action: 'approve' | 'reject') => {
     setLoading(true);
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await fetch(`${apiBase}/api/court-bookings/${id}`, {
+      const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() || '';
+      const apiUrl = apiBase ? `${apiBase}/api/court-bookings/${id}` : `/api/court-bookings/${id}`;
+      const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: action === 'approve' ? 'approved' : 'rejected' })
@@ -67,6 +75,7 @@ export function CourtBookingAdmin() {
       setRequests(prev => prev.map(request => 
         request._id === id ? updatedBooking : request
       ));
+      setLastUpdated(new Date().toLocaleTimeString());
       
       setNotificationType('success');
       setNotificationMessage(`Booking request ${action}ed successfully!`);
@@ -108,13 +117,9 @@ export function CourtBookingAdmin() {
         <div className={`mb-6 p-4 rounded-lg border-l-4 ${notificationType === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
           <div className="flex items-start gap-3">
             {notificationType === 'success' ? (
-              <svg size={20} className="flex-shrink-0 mt-0.5">
-                <path d="M9 12l2 2 4-4"></path>
-              </svg>
+              <CheckCircle size={20} className="flex-shrink-0 mt-0.5" />
             ) : (
-              <svg size={20} className="flex-shrink-0 mt-0.5">
-                <path d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
+              <XCircle size={20} className="flex-shrink-0 mt-0.5" />
             )}
             <div>
               <p className="font-medium">{notificationMessage}</p>
@@ -131,11 +136,26 @@ export function CourtBookingAdmin() {
         </div>
       )}
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-primary mb-4">Court Booking Requests</h1>
-        <p className="text-slate-600">
-          Manage and respond to court booking requests from users. Click the WhatsApp icon to send approval notifications.
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-primary mb-4">Court Booking Requests</h1>
+          <p className="text-slate-600">
+            Manage and respond to court booking requests from users. Click the WhatsApp icon to send approval notifications.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {lastUpdated && (
+            <div className="text-slate-500 text-sm">Last updated: {lastUpdated}</div>
+          )}
+          <button
+            type="button"
+            onClick={loadRequests}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Refresh
+          </button>
+        </div>
       </div>
 
 {requests.length === 0 ? (

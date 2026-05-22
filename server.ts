@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import net from "net";
 import dotenv from "dotenv";
 
 // Setup crypto for Node 16 compatibility (needed for Vite)
@@ -25,6 +26,27 @@ const importMongoose = async () => {
 };
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://vendhan:vendhan123@cluster0.irfa0ip.mongodb.net/?appName=Cluster0";
+
+async function isPortAvailable(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const tester = net.createServer()
+      .once("error", () => {
+        resolve(false);
+      })
+      .once("listening", () => {
+        tester.close(() => resolve(true));
+      })
+      .listen(port, "0.0.0.0");
+  });
+}
+
+async function findAvailablePort(startPort: number): Promise<number> {
+  let port = startPort;
+  while (!(await isPortAvailable(port))) {
+    port += 1;
+  }
+  return port;
+}
 
 // --- Database Models (only if mongoose is available) ---
 let Student, Coach, Attendance, Payment, Sport, Schedule, Event, CourtBooking;
@@ -178,7 +200,8 @@ async function startServer() {
   await importMongoose();
   await connectMongo();
   const app = express();
-  const PORT = 3000;
+  const requestedPort = Number(process.env.PORT) || 3000;
+  const PORT = await findAvailablePort(requestedPort);
 
   app.use(express.json());
   
@@ -533,8 +556,29 @@ async function startServer() {
     res.json({ status: "ok", db: dbConnected, modelsInitialized: !!Student, mongooseReadyState: readyState });
   });
 
-  // 404 handler for unmatched routes
-  app.use((req, res) => {
+// --- Vite Middleware ---
+   if (process.env.NODE_ENV !== "production") {
+     const vite = await createViteServer({
+       server: { 
+         middlewareMode: true,
+         hmr: false,
+       },
+       appType: "spa",
+       optimizeDeps: {
+         include: []
+       }
+     });
+     app.use(vite.middlewares);
+   } else {
+    const distPath = path.join(process.cwd(), "dist");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+  }
+
+  // 404 handler for unmatched API routes
+  app.use("/api", (req, res) => {
     console.log(`[404] ${req.method} ${req.path} - no matching route`);
     res.status(404).json({ error: "Route not found" });
   });
@@ -550,39 +594,10 @@ async function startServer() {
     }
   });
 
-  // --- Vite Middleware ---
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { 
-        middlewareMode: true,
-        hmr: false
-      },
-      appType: "spa",
-      optimizeDeps: {
-        include: []
-      }
-    });
-    // Add error logging to vite middleware
-    const origMw = vite.middlewares;
-    vite.middlewares = async function(req, res, next) {
-      try {
-        const result = await origMw(req, res, next);
-        return result;
-      } catch (err) {
-        console.error("[VITE ERROR]", req.method, req.path, err.message);
-        throw err;
-      }
-    };
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-  }
-
   app.listen(PORT, "0.0.0.0", () => {
+    if (PORT !== requestedPort) {
+      console.log(`Requested port ${requestedPort} was busy; running on http://localhost:${PORT} instead.`);
+    }
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }

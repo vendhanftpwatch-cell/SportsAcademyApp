@@ -31,12 +31,13 @@ export function CourtBookingForm() {
     setSubmitStatus(null);
 
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+      const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() || '';
+      const apiUrl = apiBase ? `${apiBase}/api/court-bookings` : '/api/court-bookings';
       const postData = { ...formData };
-      console.log('[SUBMIT] apiBase:', apiBase, 'url:', `${apiBase}/api/court-bookings`);
+      console.log('[SUBMIT] apiBase:', apiBase, 'url:', apiUrl);
       console.log('[SUBMIT] body:', postData);
       
-      const response = await fetch(`${apiBase}/api/court-bookings`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(postData),
