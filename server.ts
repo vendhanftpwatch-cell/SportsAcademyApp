@@ -524,6 +524,41 @@ function phonepeAuthHeader(): string | null {
   return 'Basic ' + Buffer.from(`${PHONEPE_MERCHANT_ID}:${PHONEPE_API_KEY}`).toString('base64');
 }
 
+// --- Environment Variables for GooglePay ---
+const GOOGLEPAY_MERCHANT_ID = process.env.GOOGLEPAY_MERCHANT_ID?.trim() || "";
+const GOOGLEPAY_MERCHANT_KEY = process.env.GOOGLEPAY_MERCHANT_KEY?.trim() || "";
+
+// --- Direct UPI Configuration (simplest option - no API credentials needed) ---
+const UPI_ID = process.env.UPI_ID?.trim() || "renuka.mpp-3@okaxis";
+const UPI_NAME = process.env.UPI_NAME?.trim() || "VendhanSportsAcademy";
+
+// --- Basic Auth helper for GooglePay ---
+function googlepayAuthHeader(): string | null {
+  if (!GOOGLEPAY_MERCHANT_ID || !GOOGLEPAY_MERCHANT_KEY) return null;
+  return 'Basic ' + Buffer.from(`${GOOGLEPAY_MERCHANT_ID}:${GOOGLEPAY_MERCHANT_KEY}`).toString('base64');
+}
+
+// --- Generate direct UPI payment link ---
+function generateUpiLink(amount: number, transactionId: string, description?: string): string {
+  const upiAmount = Math.max(1, Math.round((amount || 0) * 100)) / 100;
+  const params = new URLSearchParams({
+    pa: UPI_ID,
+    pn: UPI_NAME,
+    am: upiAmount.toFixed(2),
+    tr: transactionId,
+    cu: 'INR',
+  });
+  return `upi://pay?${params.toString()}`;
+}
+
+// --- Resolve payment provider from env ---
+function detectProvider(): 'phonepe' | 'googlepay' | 'direct-upi' | null {
+  if (PHONEPE_MERCHANT_ID && PHONEPE_API_KEY) return 'phonepe';
+  if (GOOGLEPAY_MERCHANT_ID && GOOGLEPAY_MERCHANT_KEY) return 'googlepay';
+  if (UPI_ID) return 'direct-upi'; // Fallback to direct UPI if no gateway configured
+  return null;
+}
+
 // --- Court Bookings CRUD ---
 app.get("/api/court-bookings", async (req, res) => {
     try {
@@ -574,74 +609,162 @@ app.get("/api/court-bookings", async (req, res) => {
     }
   });
 
-  // Create PhonePe Payment Link
+// Create Payment Link — PhonePe, GooglePay, or Direct UPI (auto-detected by env vars)
   app.post("/api/create-payment-link", async (req, res) => {
     try {
-      const auth = phonepeAuthHeader();
-      if (!auth) {
-        return res.status(503).json({ error: "PhonePe credentials not configured on server (set PHONEPE_MERCHANT_ID and PHONEPE_API_KEY in .env)" });
+      const provider = detectProvider();
+
+      if (!provider) {
+        return res.status(503).json({
+          error: "No payment gateway configured. Add PhonePe, GooglePay, or UPI_ID to your .env file.",
+          hints: {
+            phonepe:     "Set PHONEPE_MERCHANT_ID and PHONEPE_API_KEY",
+            googlepay:   "Set GOOGLEPAY_MERCHANT_ID and GOOGLEPAY_MERCHANT_KEY",
+            direct_upi:  "Set UPI_ID (e.g., renuka.mpp-3@okaxis) for direct UPI payments",
+          }
+        });
       }
 
       const { bookingId, amount, customerName, customerPhone, customerEmail, description } = req.body;
+      const transactionId = `SA${Date.now()}`;
 
-      const amountInPaisa = Math.max(1, Math.round((amount || 0) * 100));          // min ₹0.01
-      const expireAt      = Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000); // 24 h from now
-
-      // Build a unique merchantOrderId — PhonePe allows max 63 chars, only _ and -
-      const merchantOrderId = `SA${Date.now()}`;
-
-      const payload: any = {
-        merchantOrderId,
-        description: description || "Sports Academy Court Booking",
-        amount: amountInPaisa,
-        paymentFlow: {
-          type: "PAYLINK",
-          customerDetails: {
-            name: customerName || "",
-            phoneNumber: customerPhone ? String(customerPhone).replace(/\D/g, '').slice(-10) : "",
-            email: customerEmail || "",
-          },
-          notificationChannels: { SMS: false, EMAIL: false },
-          expireAt,
-        },
-      };
-
-      const response = await fetch(phonepePaylinksUrl(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': auth,
-          'X-MERCHANT-ID': PHONEPE_MERCHANT_ID,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error('[PhonePe] API error:', response.status, errText);
-        return res.status(502).json({ success: false, error: 'PhonePe API error', details: errText.slice(0, 300) });
-      }
-
-      const ppData = await response.json();
-      console.log('[PhonePe] payment link created:', JSON.stringify(ppData));
-
-      // Update booking payment status if bookingId provided
-      if (ppData.orderId && dbConnected && CourtBooking) {
-        try {
-          await CourtBooking.findByIdAndUpdate(bookingId, { paymentStatus: 'initiated', status: 'payment_pending' });
-        } catch (e) {
-          console.warn('[PhonePe] failed to update booking payment status:', e.message);
+      // ── Direct UPI path (simplest) ───────────────────────────────────────
+      if (provider === 'direct-upi') {
+        const upiLink = generateUpiLink(amount, transactionId, description);
+        
+        if (dbConnected && CourtBooking) {
+          try {
+            await CourtBooking.findByIdAndUpdate(bookingId, { paymentStatus: 'initiated', status: 'payment_pending' });
+          } catch (e) { console.warn('[UPI] booking status update failed:', e.message); }
         }
+
+        return res.json({
+          success: true,
+          provider: 'direct-upi',
+          transactionId,
+          paylinkUrl: upiLink,
+        });
       }
 
-      res.json({
-        success: true,
-        transactionId: ppData.orderId || merchantOrderId,
-        paylinkUrl: ppData.paylinkUrl || '',
-        state: ppData.state,
-      });
+      // ── PhonePe path ────────────────────────────────────────────────
+      if (provider === 'phonepe') {
+        const auth = phonepeAuthHeader();
+        if (!auth) return res.status(503).json({ error: "PhonePe credentials not configured" });
+
+        const amountInPaisa = Math.max(1, Math.round((amount || 0) * 100)); // min ₹0.01
+        const expireAt      = Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000); // 24 h
+
+        const merchantOrderId = `SA${Date.now()}`;
+
+        const payload: any = {
+          merchantOrderId,
+          description: description || "Sports Academy Court Booking",
+          amount: amountInPaisa,
+          paymentFlow: {
+            type: "PAYLINK",
+            customerDetails: {
+              name:      customerName  || "",
+              phoneNumber: customerPhone ? String(customerPhone).replace(/\D/g, '').slice(-10) : "",
+              email:     customerEmail || "",
+            },
+            notificationChannels: { SMS: false, EMAIL: false },
+            expireAt,
+          },
+        };
+
+        const response = await fetch(phonepePaylinksUrl(), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': auth,
+            'X-MERCHANT-ID': PHONEPE_MERCHANT_ID,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          console.error('[PhonePe] API error:', response.status, errText);
+          return res.status(502).json({ success: false, error: 'PhonePe API error', details: errText.slice(0, 300) });
+        }
+
+        const ppData = await response.json();
+        console.log('[PhonePe] payment link:', ppData.orderId, ppData.paylinkUrl);
+
+        if (ppData.orderId && dbConnected && CourtBooking) {
+try {
+            await CourtBooking.findByIdAndUpdate(bookingId, { paymentStatus: 'initiated', status: 'payment_pending' });
+          } catch (e) { console.warn('[PhonePe] booking status update failed:', e.message); }
+        }
+
+        return res.json({
+          success: true,
+          provider: 'phonepe',
+          transactionId: ppData.orderId || merchantOrderId,
+          paylinkUrl: ppData.paylinkUrl || '',
+          state: ppData.state,
+        });
+      }
+
+      // ── GooglePay path ───────────────────────────────────────────────
+      if (provider === 'googlepay') {
+        const auth = googlepayAuthHeader();
+        if (!auth) return res.status(503).json({ error: "GooglePay credentials not configured" });
+
+        const amountInPaise = Math.max(100, Math.round((amount || 0) * 100)); // min ₹1
+        const expireBy      = Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000);
+
+        const payload: any = {
+          amount:      amountInPaise,
+          currency:    "INR",
+          description: description || "Sports Academy Court Booking",
+          expire_by:   expireBy,
+          payment_link_details: {
+            max_amount: amountInPaise,
+          },
+        };
+
+        if (customerName)  payload.customer = { name: customerName };
+        if (customerEmail) payload.customer = { ...(payload.customer || {}), email: customerEmail };
+        if (customerPhone) payload.customer = { ...(payload.customer || {}), contact: String(customerPhone).replace(/\D/g, '').slice(-10) };
+
+        const response = await fetch("https://api.googlepay.com/v1/payment_links/", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': auth,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          console.error('[GooglePay] API error:', response.status, errText);
+          return res.status(502).json({ success: false, error: 'GooglePay API error', details: errText.slice(0, 300) });
+        }
+
+        const gpData = await response.json();
+        console.log('[GooglePay] payment link:', gpData.id, gpData.short_url);
+
+        if (gpData.id && dbConnected && CourtBooking) {
+          try {
+            await CourtBooking.findByIdAndUpdate(bookingId, { paymentStatus: 'initiated', status: 'payment_pending' });
+          } catch (e) { console.warn('[GooglePay] booking status update failed:', e.message); }
+        }
+
+        return res.json({
+          success: true,
+          provider: 'googlepay',
+          transactionId: gpData.id,
+          paylinkUrl: gpData.short_url || gpData.shorturl || '',
+          state: gpData.state,
+        });
+      }
+
+      // shouldn't reach here
+      res.status(501).json({ error: "Unsupported payment provider" });
     } catch (err) {
-      console.error('[PhonePe] create-payment-link error:', err);
+      console.error('[create-payment-link] error:', err);
       res.status(500).json({ success: false, error: "Failed to create payment link", details: (err instanceof Error ? err.message : '').slice(0, 200) });
     }
   });
@@ -649,11 +772,18 @@ app.get("/api/court-bookings", async (req, res) => {
   // Basic Status
   app.get("/api/health", (req, res) => {
     const readyState = mongoose ? (mongoose.connection && mongoose.connection.readyState) : null;
-    res.json({ status: "ok", db: dbConnected, modelsInitialized: !!Student, mongooseReadyState: readyState });
+    const provider = detectProvider();
+    res.json({
+      status: "ok", db: dbConnected, modelsInitialized: !!Student, mongooseReadyState: readyState,
+      paymentGateway: provider || "not configured",
+      phonepe:    { configured: !!PHONEPE_MERCHANT_ID && !!PHONEPE_API_KEY, mode: PHONEPE_MODE },
+      googlepay:  { configured: !!GOOGLEPAY_MERCHANT_ID && !!GOOGLEPAY_MERCHANT_KEY, mode: provider === 'googlepay' ? 'active' : 'standby' },
+      direct_upi: { configured: !!UPI_ID, upi_id: UPI_ID, mode: provider === 'direct-upi' ? 'active' : 'standby' },
+    });
   });
 
 // --- Vite Middleware ---
-   if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production") {
      const vite = await createViteServer({
        server: { 
          middlewareMode: true,

@@ -170,32 +170,42 @@ export function CourtBookingForm() {
       console.log('[Paylink response]', paylinkData);
 
       if (paylinkData.success && paylinkData.paylinkUrl) {
-        // ---- Step 3: Open Paylink checkout page in a focused popup window ----
-        const w = 520;
-        const h = 640;
-        const screenX = typeof window.screenX !== 'undefined' ? window.screenX : window.screenLeft;
-        const screenY = typeof window.screenY !== 'undefined' ? window.screenY : window.screenTop;
-        const outerW = typeof window.outerWidth !== 'undefined' ? window.outerWidth : (document as any).documentElement?.clientWidth || window.innerWidth || 1024;
-        const outerH = typeof window.outerHeight !== 'undefined' ? window.outerHeight : (document as any).documentElement?.clientHeight || window.innerHeight || 768;
-        const left = Math.max(0, screenX + (outerW - w) / 2);
-        const top  = Math.max(0, screenY + (outerH - h) / 2);
+        // ---- Step 3: Handle different provider types ----
+        if (paylinkData.provider === 'direct-upi') {
+          // Direct UPI - try to open UPI app directly (works on mobile)
+          const upiLink = paylinkData.paylinkUrl;
+          
+          // Try to open UPI app - on mobile this will open the app with pre-filled amount
+          // On desktop, this will show a blank page (browser limitation)
+          window.location.href = upiLink;
+        } else {
+          // PhonePe/GooglePay - open checkout page in popup window
+          const w = 520;
+          const h = 640;
+          const screenX = typeof window.screenX !== 'undefined' ? window.screenX : window.screenLeft;
+          const screenY = typeof window.screenY !== 'undefined' ? window.screenY : window.screenTop;
+          const outerW = typeof window.outerWidth !== 'undefined' ? window.outerWidth : (document as any).documentElement?.clientWidth || window.innerWidth || 1024;
+          const outerH = typeof window.outerHeight !== 'undefined' ? window.outerHeight : (document as any).documentElement?.clientHeight || window.innerHeight || 768;
+          const left = Math.max(0, screenX + (outerW - w) / 2);
+          const top  = Math.max(0, screenY + (outerH - h) / 2);
 
-        const popup = window.open(
-          paylinkData.paylinkUrl,
-          'PaylinkCheckout',
-          `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no`
-        );
+          const popup = window.open(
+            paylinkData.paylinkUrl,
+            'PaylinkCheckout',
+            `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no`
+          );
 
-        if (popup) {
-          // When the popup is closed (PIN flow completed / cancelled), refresh status
-          const pollClose = setInterval(() => {
-            if (popup.closed) {
-              clearInterval(pollClose);
-              setIsPaying(false);
-              // Poll server for booking status update; for now we just reset button
-              window.location.reload();
-            }
-          }, 1000);
+          if (popup) {
+            // When the popup is closed (PIN flow completed / cancelled), refresh status
+            const pollClose = setInterval(() => {
+              if (popup.closed) {
+                clearInterval(pollClose);
+                setIsPaying(false);
+                // Poll server for booking status update; for now we just reset button
+                window.location.reload();
+              }
+            }, 1000);
+          }
         }
       } else {
         setPaylinkError('Payment link was not returned. Please check your Paylink credentials and try again.');
