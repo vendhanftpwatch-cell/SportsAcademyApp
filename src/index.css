@@ -5,18 +5,20 @@
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
 
-  --color-primary: #6366F1;
-  --color-secondary: #F43F5E;
-  --color-accent: #8B5CF6;
-  --color-success: #22C55E;
+  --color-primary: #7C3AED;
+  --color-secondary: #EC4899;
+  --color-accent: #0EA5E9;
+  --color-electric: #F43F5E;
+  --color-success: #10B981;
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
   --color-pink: #EC4899;
   --color-rose: #F43F5E;
+  --color-violet: #A78BFA;
 
-  --color-page-bg: #F8FAFC;
+  --color-page-bg: #FFFFFF;
   --color-card-bg: #FFFFFF;
-  --color-card-border: #E2E8F0;
+  --color-card-border: #F1F0FB;
   --color-sidebar-bg: #FFFFFF;
 }
 
@@ -28,7 +30,7 @@
 
   body {
     @apply bg-page-bg text-slate-800 font-sans;
-    background-color: #F8FAFC;
+    background-color: #FFFFFF;
     min-height: 100vh;
   }
 
@@ -40,28 +42,28 @@
 
 /* ─── Card System ─── */
 .bento-card {
-  @apply bg-card-bg border border-card-border shadow-lg rounded-3xl transition-all duration-300;
+  @apply bg-card-bg border border-card-border shadow-sm hover:shadow-md rounded-2xl transition-all duration-200;
 }
 
 .bento-card-hover {
-  @apply hover:shadow-xl hover:-translate-y-1 hover:border-indigo-300;
+  @apply hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/30;
 }
 
 .glass-card {
-  @apply bg-white/80 backdrop-blur-lg border border-slate-200 shadow-lg rounded-3xl;
+  @apply bg-white/90 backdrop-blur-lg border border-white rounded-2xl shadow shadow-slate-200/40;
 }
 
 /* ─── Vibrant Gradients ─── */
 .sporty-gradient {
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%);
+  background: linear-gradient(135deg, #7C3AED 0%, #0EA5E9 50%, #EC4899 100%);
 }
 
 .vibrant-orange {
-  background: linear-gradient(135deg, #F43F5E 0%, #F59E0B 100%);
+  background: linear-gradient(135deg, #F43F5E 0%, #F97316 100%);
 }
 
 .vibrant-green {
-  background: linear-gradient(135deg, #22C55E 0%, #06B6D4 100%);
+  background: linear-gradient(135deg, #10B981 0%, #0EA5E9 100%);
 }
 
 .vibrant-pink {
@@ -69,34 +71,28 @@
 }
 
 .vibrant-blue {
-  background: linear-gradient(135deg, #6366F1 0%, #0EA5E9 100%);
+  background: linear-gradient(135deg, #7C3AED 0%, #0EA5E9 100%);
 }
 
 .vibrant-indigo {
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
 }
 
-/* ─── Sidebar ─── */
-.sidebar-gradient {
-  background: #FFFFFF;
-  border-right: 1px solid #E2E8F0;
-}
-
-/* ─── Soft Shadows ─── */
+/* ─── Soft Glow Shadows ─── */
 .neon-glow {
-  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.15), 0 8px 48px rgba(139, 92, 246, 0.10);
+  box-shadow: 0 2px 16px rgba(124, 58, 237, 0.15), 0 4px 32px rgba(14, 165, 233, 0.08);
 }
 
 .neon-primary {
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.15), 0 2px 12px rgba(14, 165, 233, 0.08);
 }
 
 .neon-success {
-  box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
 }
 
 .neon-danger {
-  box-shadow: 0 0 12px rgba(244, 63, 94, 0.2);
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.18);
 }
 
 /* ─── Touch Targets ─── */
@@ -131,15 +127,15 @@
 /* ─── Mobile ─── */
 @media (max-width: 768px) {
   .bento-card {
-    @apply rounded-3xl shadow-md;
+    @apply rounded-2xl shadow-sm;
   }
 
   .rounded-\[2\.5rem\] {
-    border-radius: 1.5rem !important;
+    border-radius: 1.25rem !important;
   }
 
   .rounded-\[2rem\] {
-    border-radius: 1.25rem !important;
+    border-radius: 1rem !important;
   }
 
   .mobile-content {
@@ -203,7 +199,7 @@
 
 /* ─── Rating / Progress Fill ─── */
 .progress-bar {
-  @apply h-2.5 rounded-full overflow-hidden bg-slate-100;
+  @apply h-2 rounded-full overflow-hidden bg-slate-100;
 }
 
 .progress-bar .progress-fill {
@@ -215,23 +211,23 @@
   @apply text-[10px] font-black uppercase tracking-widest text-slate-400;
 }
 
-/* ─── Scrollbar (light) ─── */
+/* ─── Scrollbar (light VIB) ─── */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: #FAF9FF;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #6366F1, #8B5CF6);
+  background: linear-gradient(180deg, #7C3AED, #0EA5E9);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #4F46E5, #7C3AED);
+  background: linear-gradient(180deg, #6D28D9, #0284C7);
 }
 
 /* ─── Tablet / Desktop sticky header ─── */

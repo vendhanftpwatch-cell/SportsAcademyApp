@@ -26,7 +26,7 @@ export function CoachPay() {
   const [loading, setLoading] = useState(true);
   const [showPayModal, setShowPayModal] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
-  
+
   const [formData, setFormData] = useState({
     amount: 0,
     month: 'May 2024',
@@ -91,7 +91,7 @@ export function CoachPay() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Coach Payroll</h2>
+        <h2 className="text-3xl font-black text-slate-800 tracking-tight">Coach Payroll</h2>
         <p className="text-slate-500 font-medium mt-1">Manage salaries, payments and disbursement history</p>
       </div>
 
@@ -99,35 +99,35 @@ export function CoachPay() {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="font-black text-[11px] uppercase tracking-[0.2em] text-slate-400">Recent Transactions</h3>
-            <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">View All</button>
+            <button className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline">View All</button>
           </div>
-          
-          <div className="space-y-4">
+
+          <div className="space-y-3">
             {loading ? (
-              [1, 2, 3].map(i => <div key={i} className="h-24 bg-slate-50/50 animate-pulse rounded-3xl" />)
+              [1, 2, 3].map(i => <div key={i} className="h-24 bg-slate-50/50 animate-pulse rounded-[1.25rem]" />)
             ) : payments.length === 0 ? (
-              <div className="p-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 shadow-sm">
-                <History className="mx-auto text-slate-200 mb-4" size={48} />
+              <div className="p-10 md:p-12 text-center bg-white rounded-[1.75rem] border-2 border-dashed border-card-border shadow-sm">
+                <History className="mx-auto text-slate-200 mb-4" size={44} />
                 <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No transaction history found</p>
               </div>
             ) : payments.slice(0, 5).map(payment => (
-              <motion.div 
+              <motion.div
                 key={payment._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white border border-slate-100 p-6 rounded-3xl flex items-center justify-between shadow-sm hover:shadow-md hover:border-indigo-100 transition-all group"
+                className="bg-white border border-card-border p-5 md:p-6 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md hover:border-violet-200 transition-all"
               >
-                <div className="flex items-center gap-5">
-                  <div className="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-500 border border-green-100">
-                    <CheckCircle2 size={24} />
+                <div className="flex items-center gap-4 md:gap-5">
+                  <div className="w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-success border border-emerald-100">
+                    <CheckCircle2 size={22} className="md:w-6 md:h-6" />
                   </div>
                   <div>
-                    <p className="font-black text-slate-800 tracking-tight">{payment.coachId?.name || 'Unknown'}</p>
+                    <p className="font-bold text-slate-800 tracking-tight">{payment.coachId?.name || 'Unknown'}</p>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{payment.month}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-black text-slate-900 text-lg">₹{payment.amount.toLocaleString()}</p>
+                  <p className="font-bold text-slate-800 text-lg">₹{payment.amount.toLocaleString()}</p>
                   <p className="text-[10px] text-slate-300 font-bold uppercase mt-1 leading-none">{new Date(payment.date).toLocaleDateString()}</p>
                 </div>
               </motion.div>
@@ -137,20 +137,20 @@ export function CoachPay() {
 
         <div className="space-y-6">
           <h3 className="font-black text-[11px] uppercase tracking-[0.2em] text-slate-400">Coach List</h3>
-          <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm divide-y divide-slate-100">
+          <div className="bg-white border border-card-border rounded-[2rem] p-5 md:p-6 shadow-sm divide-y divide-card-border">
             {coaches.map(coach => (
               <div key={coach._id} className="py-5 first:pt-0 last:pb-0 flex items-center justify-between group">
                 <div>
-                  <p className="font-black text-slate-800 tracking-tight">{coach.name}</p>
+                  <p className="font-bold text-slate-800 tracking-tight">{coach.name}</p>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">₹{coach.salary?.toLocaleString()} / mo</p>
                 </div>
-                <button 
+                <button
                   onClick={() => {
                     setSelectedCoach(coach);
                     setFormData({ ...formData, amount: coach.salary });
                     setShowPayModal(true);
                   }}
-                  className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95 border border-slate-200"
+                  className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95 border border-card-border"
                 >
                   <Plus size={18} />
                 </button>
@@ -163,48 +163,49 @@ export function CoachPay() {
       <AnimatePresence>
         {showPayModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowPayModal(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              className="absolute inset-0 backdrop-blur-sm"
+              style={{ background: 'rgba(124, 58, 237, 0.08)' }}
             />
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-md bg-white rounded-[40px] shadow-2xl p-10 border border-slate-100"
+              className="relative w-full max-w-md bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl p-8 md:p-10 border border-card-border"
             >
-              <div className="flex items-center justify-between mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
-                  <Wallet size={28} />
+              <div className="flex items-center justify-between mb-6 md:mb-8">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-violet-50 flex items-center justify-center text-primary shadow-inner">
+                  <Wallet size={24} className="md:w-7 md:h-7" />
                 </div>
-                <button onClick={() => setShowPayModal(false)} className="p-2 hover:bg-slate-50 rounded-xl text-slate-400"><X size={20} /></button>
+                <button onClick={() => setShowPayModal(false)} className="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400"><X size={20} /></button>
               </div>
-              
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Process Payment</h3>
-              <p className="text-slate-500 font-medium mb-8">Release salary payment for <span className="text-slate-800 font-black">{selectedCoach?.name}</span></p>
 
-              <form onSubmit={handlePayment} className="space-y-6">
+              <h3 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight mb-2">Process Payment</h3>
+              <p className="text-slate-500 font-medium mb-6 md:mb-8">Release salary payment for <span className="text-slate-800 font-bold">{selectedCoach?.name}</span></p>
+
+              <form onSubmit={handlePayment} className="space-y-5 md:space-y-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Amount (₹)</label>
-                  <input 
+                  <input
                     type="number" required
                     value={formData.amount}
                     onChange={e => setFormData({...formData, amount: parseInt(e.target.value)})}
-                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-black text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none text-xl"
+                    className="w-full h-14 bg-slate-50 border border-card-border rounded-2xl px-6 font-black text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none text-xl"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Payment Month</label>
-                  <input 
+                  <input
                     type="text" required
                     value={formData.month}
                     onChange={e => setFormData({...formData, month: e.target.value})}
-                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none"
+                    className="w-full h-14 bg-slate-50 border border-card-border rounded-2xl px-6 font-semibold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none"
                     placeholder="e.g. May 2024"
                   />
                 </div>
 
-                <button type="submit" className="w-full h-16 sporty-gradient text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20 mt-4 active:scale-95 transition-all flex items-center justify-center gap-3">
+                <button type="submit" className="w-full h-16 sporty-gradient text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-lg shadow-violet-400/20 mt-4 active:scale-95 transition-all flex items-center justify-center gap-3">
                   <Save size={20} /> Authorize Payment
                 </button>
               </form>

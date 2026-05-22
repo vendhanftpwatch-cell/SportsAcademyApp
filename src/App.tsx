@@ -49,13 +49,13 @@ export default function App() {
 
   return (
     <Router>
-      <div className="flex min-h-screen bg-slate-50">
+      <div className="flex min-h-screen bg-white">
         <Sidebar isAdmin={isAuthenticated} mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
         <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden safe-area-inset pb-24 md:pb-8 main-content">
           <div className="md:hidden flex justify-between items-center mb-3 px-1">
             <button 
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden flex items-center gap-2 px-4 py-3 rounded-2xl bg-primary text-white shadow-lg shadow-indigo-500/25 touch-target active:scale-95 transition-transform"
+              className="md:hidden flex items-center gap-2 px-4 py-3 rounded-2xl text-white shadow-lg shadow-violet-500/30 touch-target active:scale-95 transition-all vibrant-indigo"
               aria-label="Open menu"
             >
               <Menu size={20} className="text-white" />

@@ -76,12 +76,12 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
     try {
       const url = editingId ? `/api/schedules/${editingId}` : '/api/schedules';
       const method = editingId ? 'PUT' : 'POST';
-      
+
       const payload = {
         ...formData,
         time: `${formData.startTime} - ${formData.endTime}`
       };
-      
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -112,74 +112,74 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Weekly Academy Schedule</h2>
-          <p className="text-slate-500 font-medium font-sans">Manage routine training sessions and discipline timings</p>
+          <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">Weekly Academy Schedule</h2>
+          <p className="text-slate-500 font-medium font-sans mt-1">Manage routine training sessions and discipline timings</p>
         </div>
         {isAdmin && (
-          <button 
+          <button
             onClick={handleOpenAdd}
-            className="sporty-gradient text-white px-8 py-4 rounded-[2rem] font-bold shadow-lg shadow-indigo-500/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-transform"
+            className="sporty-gradient text-white px-7 md:px-8 py-3 md:py-4 rounded-[1.5rem] font-bold shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center gap-2"
           >
             <Plus size={20} /> Add Session
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-8">
+      <div className="grid grid-cols-1 gap-6 md:gap-8">
         {DAYS.map((day) => {
           const dayItems = schedules.filter(s => s.day === day);
           return (
-            <div key={day} className="bento-card p-8 shadow-sm">
-              <h3 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-3">
+            <div key={day} className="bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-card-border">
+              <h3 className="text-lg md:text-xl font-black text-slate-800 mb-4 md:mb-6 flex items-center gap-3">
                 <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                 {day}
               </h3>
-              
+
               {dayItems.length === 0 ? (
                 <p className="text-slate-400 italic text-sm pl-4">No sessions scheduled for this day.</p>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {dayItems.map((item) => (
-                    <motion.div 
+                    <motion.div
                       key={item._id}
                       layout
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="p-5 bg-indigo-50/30 rounded-3xl border border-indigo-100 relative group"
+                      className="p-4 md:p-5 bg-violet-50/50 rounded-2xl border border-violet-100/60 relative group"
                     >
                       {isAdmin && (
                         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
+                          <button
                             onClick={() => handleOpenEdit(item)}
-                            className="p-2 text-slate-400 hover:text-primary transition-colors bg-white rounded-xl shadow-sm border border-slate-200"
+                            className="p-1.5 text-slate-400 hover:text-primary transition-colors bg-white rounded-lg shadow-sm border border-card-border"
                           >
-                            <Save size={14} className="rotate-0" />
+                            <Save size={13} className="rotate-0" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDelete(item._id)}
-                            className="p-2 text-slate-400 hover:text-red-500 transition-colors bg-white rounded-xl shadow-sm border border-slate-200"
+                            className="p-1.5 text-slate-400 hover:text-danger transition-colors bg-white rounded-lg shadow-sm border border-card-border"
                            >
-                            <Trash2 size={14} />
+                            <Trash2 size={13} />
                           </button>
                         </div>
                       )}
-                      
+
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="bg-white p-2 rounded-xl border border-indigo-100 shadow-sm text-primary">
+                        <div className="bg-white p-2 rounded-lg border border-violet-100 shadow-sm text-primary">
                           <Clock size={16} />
                         </div>
-                        <span className="font-black text-slate-800 text-sm tracking-tight">{item.time}</span>
+                        <span className="font-bold text-slate-800 text-sm tracking-tight">{item.time}</span>
                       </div>
-                      
-                      <h4 className="text-lg font-bold text-slate-900 mb-2">{item.activity}</h4>
-                      
+
+                      <h4 className="text-base md:text-lg font-semibold text-slate-800 mb-2">{item.activity}</h4>
+
                       <div className="space-y-1.5">
-                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-                          <User size={12} />
+                        <div className="flex items-center gap-2 text-slate-500 text-[11px] md:text-xs">
+                          <User size={11} />
                           <span>Coach: {item.coach}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-slate-500 text-xs">
-                          <MapPin size={12} />
+                        <div className="flex items-center gap-2 text-slate-500 text-[11px] md:text-xs">
+                          <MapPin size={11} />
                           <span>Location: {item.location}</span>
                         </div>
                       </div>
@@ -195,91 +195,92 @@ export function WeeklySchedule({ isAdmin = false }: { isAdmin?: boolean }) {
       <AnimatePresence>
         {showAddModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                onClick={() => setShowAddModal(false)}
-               className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+               className="absolute inset-0 backdrop-blur-sm"
+               style={{ background: 'rgba(124, 58, 237, 0.08)' }}
             />
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl p-10"
+              className="relative w-full max-w-lg bg-white rounded-[1.75rem] md:rounded-[2rem] shadow-2xl p-6 md:p-8"
             >
-              <div className="flex items-center justify-between mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-primary shadow-inner">
-                  <Calendar size={28} />
+              <div className="flex items-center justify-between mb-6 md:mb-8">
+                <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-violet-50 flex items-center justify-center text-primary shadow-sm">
+                  <Calendar size={22} className="md:w-6 md:h-6" />
                 </div>
                 <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400"><X size={20} /></button>
               </div>
 
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
+              <h3 className="text-lg md:text-xl font-black text-slate-800 tracking-tight mb-1 md:mb-2">
                 {editingId ? 'Update Session' : 'Schedule New Session'}
               </h3>
-              <p className="text-slate-500 font-medium mb-8">Set timing and activity for the week plan</p>
+              <p className="text-slate-500 font-medium mb-6 md:mb-8 text-sm">Set timing and activity for the week plan</p>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Day</label>
-                    <select 
+                    <select
                       value={formData.day}
                       onChange={e => setFormData({...formData, day: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     >
                       {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Start Time</label>
-                    <input 
+                    <input
                       type="text" required placeholder="06:00 AM"
                       value={formData.startTime}
                       onChange={e => setFormData({...formData, startTime: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">End Time</label>
-                    <input 
+                    <input
                       type="text" required placeholder="08:00 AM"
                       value={formData.endTime}
                       onChange={e => setFormData({...formData, endTime: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Activity / Discipline</label>
-                  <input 
+                  <input
                     type="text" required placeholder="e.g. Volleyball Net Practice"
                     value={formData.activity}
                     onChange={e => setFormData({...formData, activity: e.target.value})}
-                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                    className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Lead Coach</label>
-                    <input 
+                    <input
                       type="text" required
                       value={formData.coach}
                       onChange={e => setFormData({...formData, coach: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Location</label>
-                    <input 
+                    <input
                       type="text" required
                       value={formData.location}
                       onChange={e => setFormData({...formData, location: e.target.value})}
-                      className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 font-bold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                   </div>
                 </div>
 
-                <button type="submit" className="w-full h-16 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20 mt-4 active:scale-95 transition-all flex items-center justify-center gap-3">
+                <button type="submit" className="w-full h-16 sporty-gradient text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-lg shadow-violet-400/20 mt-4 active:scale-95 transition-all flex items-center justify-center gap-3">
                   <Save size={20} /> Save to Schedule
                 </button>
               </form>

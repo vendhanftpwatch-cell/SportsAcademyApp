@@ -56,80 +56,80 @@ export function StudentFees() {
     }
   };
 
-  const filteredStudents = students.filter(s => 
+  const filteredStudents = students.filter(s =>
     `${s.firstName} ${s.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Student Fees</h2>
+        <h2 className="text-3xl font-black text-slate-800 tracking-tight">Student Fees</h2>
         <p className="text-slate-500 font-medium mt-1">Track and manage student tuition and sports fees</p>
       </div>
 
       <div className="flex gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Search students..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-bold text-slate-700"
+            className="w-full bg-white border border-card-border rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700"
           />
         </div>
-        <button className="h-14 px-6 bg-white border border-slate-200 rounded-2xl flex items-center gap-2 text-slate-500 hover:text-primary transition-all font-black text-[10px] uppercase tracking-widest hover:border-primary/30 hover:shadow-sm">
+        <button className="h-14 px-6 bg-white border border-card-border rounded-2xl flex items-center gap-2 text-slate-500 hover:text-primary transition-all font-black text-[10px] uppercase tracking-widest hover:border-primary/30 hover:shadow-sm">
           <Filter size={18} /> Filter List
         </button>
       </div>
 
-      <div className="bento-card overflow-hidden border-slate-200 shadow-sm">
+      <div className="bento-card overflow-hidden border-card-border shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-indigo-50/40">
-              <th className="p-6 border-b border-indigo-100 font-black text-[11px] uppercase tracking-widest text-slate-500">Student</th>
-              <th className="p-6 border-b border-indigo-100 font-black text-[11px] uppercase tracking-widest text-slate-500">Sport</th>
-              <th className="p-6 border-b border-indigo-100 font-black text-[11px] uppercase tracking-widest text-slate-500">Status</th>
-              <th className="p-6 border-b border-indigo-100 font-black text-[11px] uppercase tracking-widest text-slate-500 text-right">Action</th>
+            <tr className="bg-violet-50/40">
+              <th className="p-6 border-b border-violet-100 font-black text-[11px] uppercase tracking-widest text-slate-500">Student</th>
+              <th className="p-6 border-b border-violet-100 font-black text-[11px] uppercase tracking-widest text-slate-500">Sport</th>
+              <th className="p-6 border-b border-violet-100 font-black text-[11px] uppercase tracking-widest text-slate-500">Status</th>
+              <th className="p-6 border-b border-violet-100 font-black text-[11px] uppercase tracking-widest text-slate-500 text-right">Action</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               [1, 2, 3].map(i => (
                 <tr key={i} className="animate-pulse">
-                  <td colSpan={4} className="p-6 h-20 bg-slate-50/50 border-b border-slate-100" />
+                  <td colSpan={4} className="p-6 h-20 bg-slate-50/50 border-b border-card-border" />
                 </tr>
               ))
             ) : filteredStudents.map(student => (
-              <tr key={student._id} className="hover:bg-indigo-50/30 transition-colors group border-b border-slate-100 last:border-0">
-                <td className="p-6 border-b border-slate-100">
+              <tr key={student._id} className="hover:bg-violet-50/30 transition-colors group border-b border-card-border last:border-0">
+                <td className="p-6 border-b border-card-border">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black border border-primary/20">
+                    <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center text-primary font-black border border-violet-100">
                       {(student.firstName?.[0] || '').toUpperCase()}{(student.lastName?.[0] || '').toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-black text-slate-800 tracking-tight">{student.firstName} {student.lastName}</p>
+                      <p className="font-bold text-slate-800 tracking-tight">{student.firstName} {student.lastName}</p>
                     </div>
                   </div>
                 </td>
-                <td className="p-6 border-b border-slate-100">
-                  <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-slate-200">
+                <td className="p-6 border-b border-card-border">
+                  <span className="px-3 py-1 bg-violet-50 text-violet-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-violet-100">
                     {student.sport || student.sportsJoined?.[0] || 'Unassigned'}
                   </span>
                 </td>
-                <td className="p-6 border-b border-slate-100">
+                <td className="p-6 border-b border-card-border">
                   <span className={cn(
                     "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest inline-flex items-center gap-2",
-                    student.feesStatus === 'Paid' ? "bg-green-50 text-green-600 border border-green-100" : "bg-orange-50 text-orange-500 border border-orange-100"
+                    student.feesStatus === 'Paid' ? "bg-emerald-50 text-success border border-emerald-100" : "bg-orange-50 text-warning border border-orange-100"
                   )}>
-                    <div className={cn("w-1.5 h-1.5 rounded-full", student.feesStatus === 'Paid' ? "bg-green-500" : "bg-orange-500")} />
+                    <div className={cn("w-1.5 h-1.5 rounded-full", student.feesStatus === 'Paid' ? "bg-success" : "bg-warning")} />
                     {student.feesStatus}
                   </span>
                 </td>
-                <td className="p-6 border-b border-slate-100 text-right">
-                  <button 
+                <td className="p-6 border-b border-card-border text-right">
+                  <button
                     onClick={() => toggleFeeStatus(student._id, student.feesStatus)}
-                    className="h-10 px-4 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-primary hover:border-primary/20 transition-all shadow-sm active:scale-95 hover:shadow-md"
+                    className="h-10 px-4 bg-white border border-card-border rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-95 hover:shadow"
                   >
                     Change Status
                   </button>

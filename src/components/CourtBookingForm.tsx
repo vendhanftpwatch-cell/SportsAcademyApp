@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 
 export function CourtBookingForm() {
   const [formData, setFormData] = useState({
@@ -36,7 +37,7 @@ export function CourtBookingForm() {
       const postData = { ...formData };
       console.log('[SUBMIT] apiBase:', apiBase, 'url:', apiUrl);
       console.log('[SUBMIT] body:', postData);
-      
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -86,28 +87,24 @@ export function CourtBookingForm() {
 
   return (
     <div className="space-y-6">
-      <div className="border rounded-2xl p-6 bg-white shadow-sm">
-        <h2 className="text-2xl font-bold text-primary mb-4">Court Room Booking</h2>
-        <p className="text-slate-600 mb-4">
-          Fill out the form below to book a court room. Our admin team will review your request and 
+      <div className="border border-card-border rounded-2xl p-5 md:p-6 bg-white shadow-sm">
+        <h2 className="text-2xl font-bold text-primary mb-3 md:mb-4">Court Room Booking</h2>
+        <p className="text-slate-500 mb-4 text-sm md:text-base">
+          Fill out the form below to book a court room. Our admin team will review your request and
           confirm your booking via WhatsApp if approved.
         </p>
-        
+
         {submitStatus === 'success' && (
-          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-4">
-            Booking request submitted successfully! Our admin team will review your request and confirm via WhatsApp if approved.
-          </div>
+          <div className="bg-emerald-50 border border-emerald-200 text-success px-4 py-3.5 rounded-2xl mb-4 text-sm font-semibold">Booking request submitted successfully! Our admin team will review your request and confirm via WhatsApp if approved.</div>
         )}
-        
+
         {submitStatus === 'error' && (
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4">
-            Failed to submit booking request. Please try again.
-          </div>
+          <div className="bg-rose-50 border border-rose-200 text-danger px-4 py-3.5 rounded-2xl mb-4 text-sm font-semibold">Failed to submit booking request. Please try again.</div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Booking Type</label>
+            <label className="block text-sm font-semibold text-slate-600 mb-2">Booking Type</label>
             <input
               type="text"
               name="bookingType"
@@ -115,57 +112,57 @@ export function CourtBookingForm() {
               onChange={handleChange}
               required
               placeholder="e.g. Personal, Team, Event"
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700 bg-slate-50"
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Date</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-2">Date</label>
               <input
                 type="date"
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700 bg-slate-50"
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Start Time</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-2">Start Time</label>
               <input
                 type="time"
                 name="startTime"
                 value={formData.startTime}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700 bg-slate-50"
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">End Time</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-2">End Time</label>
               <input
                 type="time"
                 name="endTime"
                 value={formData.endTime}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700 bg-slate-50"
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Court Type</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-2">Court Type</label>
               <select
                 name="courtType"
                 value={formData.courtType}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700 bg-slate-50"
               >
                 <option value="">Select court type</option>
                 <option value="basketball">Basketball Court</option>
@@ -176,52 +173,52 @@ export function CourtBookingForm() {
               </select>
             </div>
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+            <label className="block text-sm font-semibold text-slate-600 mb-2">Full Name</label>
             <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700 bg-slate-50"
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-2">Phone Number</label>
               <input
                 type="tel"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700 bg-slate-50"
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+              <label className="block text-sm font-semibold text-slate-600 mb-2">Email Address</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700 bg-slate-50"
               />
             </div>
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Purpose of Booking</label>
+            <label className="block text-sm font-semibold text-slate-600 mb-2">Purpose of Booking</label>
             <select
               name="purpose"
               value={formData.purpose}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-semibold text-slate-700 bg-slate-50"
             >
               <option value="">Select purpose</option>
               <option value="practice">Team Practice</option>
@@ -232,37 +229,32 @@ export function CourtBookingForm() {
               <option value="other">Other</option>
             </select>
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Additional Notes</label>
+            <label className="block text-sm font-semibold text-slate-600 mb-2">Additional Notes</label>
             <textarea
               name="additionalNotes"
               value={formData.additionalNotes}
               onChange={handleChange}
               rows={4}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none"
+              className="w-full px-4 py-3 border border-card-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none font-semibold text-slate-700 bg-slate-50"
               placeholder="Any special requirements or additional information..."
             />
           </div>
-          
+
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-primary text-white font-bold py-3 px-6 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-target"
+            className="w-full sporty-gradient text-white font-bold py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-target"
           >
             {isSubmitting ? (
               <>
-                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 <span>Submitting...</span>
               </>
             ) : (
               <>
-                <svg size={20} className="text-white">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                </svg>
+                <span className="text-lg leading-none">⭐</span>
                 <span>Submit Booking Request</span>
               </>
             )}
