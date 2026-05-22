@@ -36,8 +36,8 @@ export function CourtBookingAdmin() {
   const loadRequests = async () => {
     try {
       setLoading(true);
-      const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() || '';
-      const apiUrl = apiBase ? `${apiBase}/api/court-bookings` : '/api/court-bookings';
+      const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() || window.location.origin;
+      const apiUrl = `${apiBase}/api/court-bookings`;
       const response = await fetch(apiUrl);
       if (response.ok) {
         const data = await response.json();
@@ -58,8 +58,8 @@ export function CourtBookingAdmin() {
     const handleAction = async (id: string, action: 'approve' | 'reject') => {
     setLoading(true);
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() || '';
-      const apiUrl = apiBase ? `${apiBase}/api/court-bookings/${id}` : `/api/court-bookings/${id}`;
+      const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() || window.location.origin;
+      const apiUrl = `${apiBase}/api/court-bookings/${id}`;
       const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
