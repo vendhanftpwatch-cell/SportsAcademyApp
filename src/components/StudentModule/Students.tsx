@@ -498,6 +498,108 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                     <label className="block text-sm font-bold text-slate-500 mb-1">Student Name</label>
                     <input
                       type="text"
+                      value={ocrData.studentName.value || ''}
+                      readOnly
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-500 mb-1">Sports Selected</label>
+                    <input
+                      type="text"
+                      value={ocrData.sportsSelected.value || ''}
+                      readOnly
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-500 mb-1">Date of Birth</label>
+                    <input
+                      type="text"
+                      value={ocrData.dateOfBirth.value || ''}
+                      readOnly
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-500 mb-1">Gender</label>
+                    <input
+                      type="text"
+                      value={ocrData.gender.value || ''}
+                      readOnly
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-500 mb-1">Parent's Name</label>
+                    <input
+                      type="text"
+                      value={ocrData.parentName.value || ''}
+                      readOnly
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-500 mb-1">Contact Number</label>
+                    <input
+                      type="text"
+                      value={ocrData.contactNumber.value || ''}
+                      readOnly
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-500 mb-1">Permanent Address</label>
+                    <input
+                      type="text"
+                      value={ocrData.permanentAddress.value || ''}
+                      readOnly
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-500 mb-1">Date Enrolled</label>
+                    <input
+                      type="text"
+                      value={ocrData.dateEnrolled.value || ''}
+                      readOnly
+                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-4 justify-end mt-6">
+                  <button
+                    className="px-6 py-3 bg-slate-200 text-slate-700 rounded-xl font-bold"
+                    onClick={() => { setShowOcrModal(false); stopCamera(); }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="sporty-gradient text-white px-6 py-3 rounded-xl font-bold"
+                    onClick={() => {
+                      setFormData({
+                        name: ocrData.studentName.value || '',
+                        age: '',
+                        gender: ocrData.gender.value || '',
+                        phone: ocrData.contactNumber.value || '',
+                        email: '',
+                        address: ocrData.permanentAddress.value || '',
+                        emergencyContact: ocrData.parentName.value || '',
+                        emergencyPhone: '',
+                        sportsSelected: ocrData.sportsSelected.value || '',
+                        dateOfBirth: ocrData.dateOfBirth.value || '',
+                        dateEnrolled: ocrData.dateEnrolled.value || '',
+                        parentName: ocrData.parentName.value || ''
+                      });
+                      setShowOcrModal(false);
+                      setShowAddModal(true);
+                    }}
+                  >
+                    Save to Database
+                  </button>
+                </div>
+              </div>
+            )}
                       value={formData.name}
                       onChange={e => setFormData({...formData, name: e.target.value})}
                       className={cn(
