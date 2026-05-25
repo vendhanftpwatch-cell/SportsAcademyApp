@@ -65,7 +65,7 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
 
     setOcrLoading(true);
     setPreviewUrl(URL.createObjectURL(file));
-    
+
     try {
       const result = await processImageOcr(file);
       setOcrData(result);
@@ -129,7 +129,7 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     }
   };
 
-  const handleAddStudent = async (e: React.FormEvent) => {
+  const handleAddStudent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const nameParts = String(formData.name || '').trim().split(/\s+/).filter(Boolean);
@@ -150,7 +150,7 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
           address: formData.address,
           emergencyContact: formData.emergencyContact,
           emergencyPhone: formData.emergencyPhone,
-          sportsJoined: formData.sportsSelected ? formData.sportsSelected.split(',').map(s => s.trim()) : [],
+          sportsJoined: formData.sportsSelected ? formData.sportsSelected.split(',').map((s: string) => s.trim()) : [],
           parentName: formData.parentName,
           dateOfBirth: formData.dateOfBirth || undefined,
           dateEnrolled: formData.dateEnrolled || undefined
@@ -196,10 +196,33 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     }
   };
 
-   const filteredStudents = students.filter(s =>
-    s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.gender?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStudents = students.filter((student: any) =>
+    student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.gender?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleOcrDataToForm = () => {
+    if (ocrData) {
+      setFormData({
+        name: ocrData.studentName.value || '',
+        age: '',
+        gender: ocrData.gender.value || '',
+        phone: ocrData.contactNumber.value || '',
+        email: '',
+        address: ocrData.permanentAddress.value || '',
+        emergencyContact: ocrData.parentName.value || '',
+        emergencyPhone: '',
+        sportsSelected: ocrData.sportsSelected.value || '',
+        dateOfBirth: ocrData.dateOfBirth.value || '',
+        dateEnrolled: ocrData.dateEnrolled.value || '',
+        parentName: ocrData.parentName.value || ''
+      });
+    }
+  };
+
+  useEffect(() => {
+    handleOcrDataToForm();
+  }, [ocrData]);
 
   return (
     <div className="space-y-6">
