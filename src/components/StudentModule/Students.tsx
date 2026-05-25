@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Plus, Search, Filter, Edit2, Trash2, Eye, User, Phone, MapPin, Calendar, Activity, CreditCard, Upload, Camera, FileImage, X, AlertCircle } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { Plus, Search, Filter, Edit2, Trash2, User, Upload, Camera, FileImage, X } from 'lucide-react';
 import { processImageOcr, type OcrStudentData } from '@/src/services/ocrService';
 
 interface StudentArchiveProps {
@@ -22,13 +21,8 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: '',
-    age: '',
     gender: '',
-    phone: '',
-    email: '',
     address: '',
-    emergencyContact: '',
-    emergencyPhone: '',
     sportsSelected: '',
     dateOfBirth: '',
     dateEnrolled: '',
@@ -71,13 +65,8 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
       setOcrData(result);
       setFormData({
         name: result.studentName.value || '',
-        age: '',
         gender: result.gender.value || '',
-        phone: result.contactNumber.value || '',
-        email: '',
         address: result.permanentAddress.value || '',
-        emergencyContact: result.parentName.value || '',
-        emergencyPhone: '',
         sportsSelected: result.sportsSelected.value || '',
         dateOfBirth: result.dateOfBirth.value || '',
         dateEnrolled: result.dateEnrolled.value || '',
@@ -132,24 +121,13 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
   const handleAddStudent = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const nameParts = String(formData.name || '').trim().split(/\s+/).filter(Boolean);
-      const firstName = nameParts.length ? nameParts[0] : '';
-      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-
       const res = await fetch('/api/students', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
-          firstName,
-          lastName,
-          age: formData.age ? parseInt(formData.age, 10) : undefined,
           gender: formData.gender,
-          phone: formData.phone,
-          email: formData.email,
           address: formData.address,
-          emergencyContact: formData.emergencyContact,
-          emergencyPhone: formData.emergencyPhone,
           sportsJoined: formData.sportsSelected ? formData.sportsSelected.split(',').map((s: string) => s.trim()) : [],
           parentName: formData.parentName,
           dateOfBirth: formData.dateOfBirth || undefined,
@@ -162,13 +140,8 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
         setPreviewUrl(null);
         setFormData({
           name: '',
-          age: '',
           gender: '',
-          phone: '',
-          email: '',
           address: '',
-          emergencyContact: '',
-          emergencyPhone: '',
           sportsSelected: '',
           dateOfBirth: '',
           dateEnrolled: '',
@@ -205,13 +178,8 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     if (ocrData) {
       setFormData({
         name: ocrData.studentName.value || '',
-        age: '',
         gender: ocrData.gender.value || '',
-        phone: ocrData.contactNumber.value || '',
-        email: '',
         address: ocrData.permanentAddress.value || '',
-        emergencyContact: ocrData.parentName.value || '',
-        emergencyPhone: '',
         sportsSelected: ocrData.sportsSelected.value || '',
         dateOfBirth: ocrData.dateOfBirth.value || '',
         dateEnrolled: ocrData.dateEnrolled.value || '',
@@ -231,7 +199,7 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
           <h2 className="text-2xl font-display font-bold text-slate-800">{isAdmin ? 'Student Archive' : 'Current Student List'}</h2>
           <p className="text-slate-500 font-medium">Manage and view all student records</p>
         </div>
-{isAdmin && (
+        {isAdmin && (
           <>
             <button
               onClick={() => setShowOcrModal(true)}
@@ -277,64 +245,58 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
             className="bento-card p-0 overflow-hidden group bento-card-hover shadow-sm"
           >
             <div className="p-6 md:p-8">
-               <div className="flex items-start justify-between mb-5 md:mb-6">
-                 <div className="flex items-center gap-4 md:gap-5">
-                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-violet-50 p-1 border border-violet-100 shadow-inner">
-                     <img
-                       src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`}
-                       alt="avatar"
-                       className="w-full h-full object-cover rounded-xl"
-                     />
-                   </div>
-                   <div>
-                     <h3 className="font-display font-black text-lg md:text-xl text-slate-800 leading-tight">{student.name}</h3>
-                     <div className="flex gap-2 mt-2">
-                       <span className="px-3 py-1 bg-violet-50 text-violet-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-violet-100">
-                         {(student.sport || student.sportsJoined?.[0] || 'Unassigned')}
-                       </span>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-
-               <div className="space-y-3 md:space-y-4">
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-card-border">
-                      <User size={16} />
-                    </div>
-                    <span className="text-sm font-semibold">{student.parentName || 'N/A'}</span>
+              <div className="flex items-start justify-between mb-5 md:mb-6">
+                <div className="flex items-center gap-4 md:gap-5">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-violet-50 p-1 border border-violet-100 shadow-inner">
+                    <img
+                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`}
+                      alt="avatar"
+                      className="w-full h-full object-cover rounded-xl"
+                    />
                   </div>
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-card-border">
-                      <Phone size={16} />
+                  <div>
+                    <h3 className="font-display font-black text-lg md:text-xl text-slate-800 leading-tight">{student.name}</h3>
+                    <div className="flex gap-2 mt-2">
+                      <span className="px-3 py-1 bg-violet-50 text-violet-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-violet-100">
+                        {(student.sport || student.sportsJoined?.[0] || 'Unassigned')}
+                      </span>
                     </div>
-                    <span className="text-sm font-semibold">{student.phone || 'N/A'}</span>
                   </div>
                 </div>
+              </div>
 
-               <div className="mt-8 pt-6 border-t border-card-border flex items-center justify-between">
-                 <div>
-                   <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Joining Date</p>
-                   <p className="text-sm font-semibold text-slate-600">
-                     {new Date(student.dateJoined || student.createdAt).toLocaleDateString()}
-                   </p>
-                 </div>
-                 <div className="flex gap-2">
-                   {isAdmin && (
-                     <>
-                       <button
-                         onClick={() => deleteStudent(student._id)}
-                         className="p-2 text-slate-300 hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
-                       >
-                         <Trash2 size={16} />
-                       </button>
-                       <button className="p-2 text-slate-300 hover:text-primary hover:bg-violet-50 rounded-lg transition-all">
-                         <Edit2 size={16} />
-                       </button>
-                     </>
-                   )}
-                 </div>
-               </div>
+              <div className="space-y-3 md:space-y-4">
+                <div className="flex items-center gap-3 text-slate-500">
+                  <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-card-border">
+                    <User size={16} />
+                  </div>
+                  <span className="text-sm font-semibold">{student.parentName || 'N/A'}</span>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-card-border flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Joining Date</p>
+                  <p className="text-sm font-semibold text-slate-600">
+                    {new Date(student.dateJoined || student.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  {isAdmin && (
+                    <>
+                      <button
+                        onClick={() => deleteStudent(student._id)}
+                        className="p-2 text-slate-300 hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                      <button className="p-2 text-slate-300 hover:text-primary hover:bg-violet-50 rounded-lg transition-all">
+                        <Edit2 size={16} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           </motion.div>
         ))}
@@ -351,74 +313,55 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
           >
             <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-5 md:mb-6">Register New Student</h3>
             <form onSubmit={handleAddStudent} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text" placeholder="Full Name" required
-                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-                />
-                <input
-                  type="number" placeholder="Age" required
-                  value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <select
-                  value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-                <input
-                  type="tel" placeholder="Phone Number" required
-                  value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-                />
-              </div>
               <input
-                type="email" placeholder="Email Address" required
-                value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
+                type="text" placeholder="Full Name" required
+                value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+              />
+              <input
+                type="date" placeholder="Date of Birth" required
+                value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})}
+                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+              />
+              <input
+                type="date" placeholder="Joined Date" required
+                value={formData.dateEnrolled} onChange={e => setFormData({...formData, dateEnrolled: e.target.value})}
+                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+              />
+              <select
+                value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}
+                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              <select
+                value={formData.sportsSelected} onChange={e => setFormData({...formData, sportsSelected: e.target.value})}
+                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                required
+              >
+                <option value="">Select Sport</option>
+                <option value="Skating">Skating</option>
+                <option value="Karate">Karate</option>
+                <option value="Shuttle">Shuttle</option>
+                <option value="Boxing">Boxing</option>
+                <option value="Yoga">Yoga</option>
+                <option value="Chess">Chess</option>
+                <option value="Silambam">Silambam</option>
+                <option value="Aerobics">Aerobics</option>
+                <option value="Carrom">Carrom</option>
+              </select>
+              <input
+                type="text" placeholder="Parent's Name" required
+                value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})}
                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
               />
               <input
                 type="text" placeholder="Address" required
                 value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
-                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text" placeholder="Emergency Contact Name" required
-                  value={formData.emergencyContact} onChange={e => setFormData({...formData, emergencyContact: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-                />
-                <input
-                  type="tel" placeholder="Emergency Phone" required
-                  value={formData.emergencyPhone} onChange={e => setFormData({...formData, emergencyPhone: e.target.value})}
-                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-                />
-              </div>
-              <input
-                type="text" placeholder="Sports Selected (comma separated)"
-                value={formData.sportsSelected} onChange={e => setFormData({...formData, sportsSelected: e.target.value})}
-                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-              />
-              <input
-                type="text" placeholder="Date of Birth (YYYY-MM-DD)"
-                value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})}
-                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-              />
-              <input
-                type="text" placeholder="Date Enrolled (YYYY-MM-DD)"
-                value={formData.dateEnrolled} onChange={e => setFormData({...formData, dateEnrolled: e.target.value})}
-                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-              />
-              <input
-                type="text" placeholder="Parent's Name"
-                value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})}
                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
               />
               <button type="submit" className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
@@ -602,13 +545,8 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                     onClick={() => {
                       setFormData({
                         name: ocrData.studentName.value || '',
-                        age: '',
                         gender: ocrData.gender.value || '',
-                        phone: ocrData.contactNumber.value || '',
-                        email: '',
                         address: ocrData.permanentAddress.value || '',
-                        emergencyContact: ocrData.parentName.value || '',
-                        emergencyPhone: '',
                         sportsSelected: ocrData.sportsSelected.value || '',
                         dateOfBirth: ocrData.dateOfBirth.value || '',
                         dateEnrolled: ocrData.dateEnrolled.value || '',
