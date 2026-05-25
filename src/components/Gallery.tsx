@@ -2,13 +2,18 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Image as ImageIcon, Maximize2 } from 'lucide-react';
 
+// To add your own images:
+// 1. Place your image files in the public folder (e.g., /public/images/)
+// 2. Update the images array below with your image paths and titles
+// 3. Use paths like: '/images/your-image.jpg' or '/your-image.jpg' if placed directly in public
+
 const images = [
-  { url: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80', title: 'Champions League Final' },
-  { url: 'https://images.unsplash.com/photo-1526676037777-05a232554f77?auto=format&fit=crop&q=80', title: 'Summer Camp Training' },
-  { url: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&q=80', title: 'Academy Grounds' },
-  { url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80', title: 'Football Practice' },
-  { url: 'https://images.unsplash.com/photo-1461891263873-d81ca1d3293c?auto=format&fit=crop&q=80', title: 'Athlete Sprint' },
-  { url: 'https://images.unsplash.com/photo-1552667466-07770ae110d0?auto=format&fit=crop&q=80', title: 'Team Strategy' },
+  { url: '/images/champions-league.jpg', title: 'Champions League Final' },
+  { url: '/images/summer-camp.jpg', title: 'Summer Camp Training' },
+  { url: '/images/academy-grounds.jpg', title: 'Academy Grounds' },
+  { url: '/images/football-practice.jpg', title: 'Football Practice' },
+  { url: '/images/athlete-sprint.jpg', title: 'Athlete Sprint' },
+  { url: '/images/team-strategy.jpg', title: 'Team Strategy' },
 ];
 
 export function Gallery() {

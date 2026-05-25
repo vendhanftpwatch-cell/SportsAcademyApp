@@ -51,7 +51,7 @@ export default function App() {
     <Router>
       <div className="flex min-h-screen bg-white">
         <Sidebar isAdmin={isAuthenticated} mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
-        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden safe-area-inset pb-24 md:pb-8 main-content">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden safe-area-inset pb-24 md:pb-8 main-content md:ml-72">
           <div className="md:hidden flex justify-between items-center mb-3 px-1">
             <button 
               onClick={() => setMobileMenuOpen(true)}

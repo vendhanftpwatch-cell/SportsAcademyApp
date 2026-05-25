@@ -29,7 +29,8 @@ export function SportsList({ isAdmin = false }: SportsListProps) {
     timing: '06:00 AM - 08:00 AM',
     location: 'Main Ground',
     maxStudents: 30,
-    fees: 1500
+    fees: 1500,
+    image: '' // Added image field to form data
   });
 
   const fetchData = () => {
@@ -68,7 +69,8 @@ export function SportsList({ isAdmin = false }: SportsListProps) {
           timing: '06:00 AM - 08:00 AM',
           location: 'Main Ground',
           maxStudents: 30,
-          fees: 1500
+          fees: 1500,
+          image: '' // Reset image field
         });
         fetchData();
       }
@@ -97,7 +99,7 @@ export function SportsList({ isAdmin = false }: SportsListProps) {
         {isAdmin && (
           <button
             onClick={() => setShowAddModal(true)}
-            className="sporty-gradient text-white px-5 md:px-8 py-3 md:py-4 rounded-2xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center gap-2 touch-target"
+            className="sporty-gradient text-white px-5 md:px-8 py-3 md:py=4 rounded-2xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center gap-2 touch-target"
           >
             <Plus size={16} className="md:w-5 md:h-5" /> New Discipline
           </button>
@@ -185,7 +187,7 @@ export function SportsList({ isAdmin = false }: SportsListProps) {
               </div>
             </div>
 
-            <button className="w-full py-5 bg-slate-50 group-hover:bg-violet-50 group-hover:text-primary transition-all text-[11px] font-bold flex items-center justify-center gap-2 uppercase tracking-[0.2em] text-slate-500 border-t border-card-border hover:border-violet-200">
+            <button className="w-full py-5 bg-slate-50 group-hover:bg-violet-50 group-hover:text-primary transition-all text-[11px] font-bold flex items-center justify-center gap-2 uppercase tracking-[0.2em] text-slate-500 border-t border-card-hover hover:border-violet-200">
               Manage Discipline <ChevronRight size={16} />
             </button>
           </motion.div>
@@ -263,6 +265,17 @@ export function SportsList({ isAdmin = false }: SportsListProps) {
                     value={formData.location}
                     onChange={e => setFormData({...formData, location: e.target.value})}
                     className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none touch-target"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Image URL</label>
+                  <input
+                    type="text"
+                    value={formData.image}
+                    onChange={e => setFormData({...formData, image: e.target.value})}
+                    className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800 focus:ring-2 focus:ring-primary/20 outline-none touch-target"
+                    placeholder="/images/your-sport-image.jpg or leave blank for default"
                   />
                 </div>
 

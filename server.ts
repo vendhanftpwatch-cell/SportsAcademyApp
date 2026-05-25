@@ -63,20 +63,24 @@ async function connectMongo() {
       const { Schema } = mongoose;
       
       // Student Schema
-      const studentSchema = new Schema({
-        name: { type: String, required: true },
-        firstName: { type: String },
-        lastName: { type: String },
-        age: { type: Number },
-        gender: { type: String },
-        phone: { type: String },
-        email: { type: String },
-        address: { type: String },
-        emergencyContact: { type: String },
-        emergencyPhone: { type: String },
-        dateJoined: { type: Date, default: Date.now },
-        active: { type: Boolean, default: true }
-      }, { timestamps: true });
+const studentSchema = new Schema({
+         name: { type: String, required: true },
+         firstName: { type: String },
+         lastName: { type: String },
+         age: { type: Number },
+         gender: { type: String },
+         phone: { type: String },
+         email: { type: String },
+         address: { type: String },
+         emergencyContact: { type: String },
+         emergencyPhone: { type: String },
+         parentName: { type: String },
+         dateOfBirth: { type: String },
+         dateEnrolled: { type: Date },
+         dateJoined: { type: Date, default: Date.now },
+         active: { type: Boolean, default: true },
+         sportsJoined: { type: [String], default: [] }
+       }, { timestamps: true });
 
       studentSchema.pre('validate', function() {
         // @ts-ignore
@@ -606,10 +610,27 @@ app.get("/api/court-bookings", async (req, res) => {
       res.json({ message: "Court booking deleted" });
     } catch (err) {
       res.status(500).json({ error: "Failed to delete court booking" });
-    }
+}
   });
 
-// Create Payment Link — PhonePe, GooglePay, or Direct UPI (auto-detected by env vars)
+// OCR Processing endpoint - receives base64 image and returns extracted data
+   app.post("/api/ocr/process", async (req, res) => {
+     try {
+       const { imageData, mimeType } = req.body;
+       if (!imageData) {
+         return res.status(400).json({ error: "No image data provided" });
+       }
+       
+       // For now, return success - actual OCR is done client-side
+       // This endpoint can be used for server-side processing if needed
+       res.json({ success: true, message: "OCR processing endpoint ready" });
+     } catch (err) {
+       console.error('OCR processing error:', err);
+       res.status(500).json({ error: "OCR processing failed" });
+     }
+   });
+
+  // Create Payment Link — PhonePe, GooglePay, or Direct UPI (auto-detected by env vars)
   app.post("/api/create-payment-link", async (req, res) => {
     try {
       const provider = detectProvider();

@@ -33,34 +33,36 @@ async function connectMongo() {
       console.log("Connected to MongoDB");
       const { Schema } = mongoose;
       
-       const studentSchema = new Schema({
-         name: { type: String, required: true },
-         firstName: { type: String },
-         lastName: { type: String },
-         age: { type: Number },
-         gender: { type: String },
-         phone: { type: String },
-         email: { type: String },
-         address: { type: String },
-         parentName: { type: String },
-         parentPhone: { type: String },
-         emergencyContact: { type: String },
-         emergencyPhone: { type: String },
-         dateJoined: { type: Date, default: Date.now },
-         active: { type: Boolean, default: true },
-         school: { type: String },
-         standard: { type: String },
-         classesEnrolled: { type: [String], default: [] },
-         fees: { type: Number, default: 0 },
-         feesStatus: { type: String, default: 'Pending' },
-         attendance: { 
-           totalDays: { type: Number, default: 0 },
-           presentDays: { type: Number, default: 0 },
-           percentage: { type: Number, default: 0 }
-         },
-         achievements: { type: [String], default: [] },
-         sportsJoined: { type: [String], default: [] }
-       }, { timestamps: true });
+const studentSchema = new Schema({
+          name: { type: String, required: true },
+          firstName: { type: String },
+          lastName: { type: String },
+          age: { type: Number },
+          gender: { type: String },
+          phone: { type: String },
+          email: { type: String },
+          address: { type: String },
+          parentName: { type: String },
+          parentPhone: { type: String },
+          emergencyContact: { type: String },
+          emergencyPhone: { type: String },
+          dateOfBirth: { type: String },
+          dateEnrolled: { type: Date },
+          dateJoined: { type: Date, default: Date.now },
+          active: { type: Boolean, default: true },
+          school: { type: String },
+          standard: { type: String },
+          classesEnrolled: { type: [String], default: [] },
+          fees: { type: Number, default: 0 },
+          feesStatus: { type: String, default: 'Pending' },
+          attendance: { 
+            totalDays: { type: Number, default: 0 },
+            presentDays: { type: Number, default: 0 },
+            percentage: { type: Number, default: 0 }
+          },
+          achievements: { type: [String], default: [] },
+          sportsJoined: { type: [String], default: [] }
+        }, { timestamps: true });
       
       const coachSchema = new Schema({
         name: { type: String, required: true },
@@ -505,6 +507,20 @@ async function getApp() {
       res.json({ message: "Court booking deleted" });
     } catch (err) {
       res.status(500).json({ error: "Failed to delete court booking" });
+    }
+  });
+
+  // OCR Processing endpoint
+  app.post("/api/ocr/process", async (req, res) => {
+    try {
+      const { imageData } = req.body;
+      if (!imageData) {
+        return res.status(400).json({ error: "No image data provided" });
+      }
+      res.json({ success: true, message: "OCR processing endpoint ready" });
+    } catch (err) {
+      console.error('OCR processing error:', err);
+      res.status(500).json({ error: "OCR processing failed" });
     }
   });
 
