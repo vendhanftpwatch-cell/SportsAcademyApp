@@ -452,9 +452,19 @@ async function startServer() {
     } catch (err) {
       res.status(400).json({ error: "Failed to create event" });
     }
-  });
+});
 
-  app.delete("/api/events/:id", async (req, res) => {
+   app.put("/api/events/:id", async (req, res) => {
+     try {
+       if (!Event) return res.status(503).json({ error: "Database not available" });
+       const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+       res.json(event);
+     } catch (err) {
+       res.status(400).json({ error: "Failed to update event" });
+     }
+   });
+
+   app.delete("/api/events/:id", async (req, res) => {
     try {
       if (!Event) return res.status(503).json({ error: "Database not available" });
       await Event.findByIdAndDelete(req.params.id);
