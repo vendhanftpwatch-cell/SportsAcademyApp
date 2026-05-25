@@ -8,11 +8,11 @@ import { Image as ImageIcon, Maximize2 } from 'lucide-react';
 // 3. Use paths like: '/images/your-image.jpg' or '/your-image.jpg' if placed directly in public
 
 const images = [
-  { url: '/images/champions-league.jpg', title: 'Champions League Final' },
-  { url: '/images/summer-camp.jpg', title: 'Summer Camp Training' },
-  { url: '/images/academy-grounds.jpg', title: 'Academy Grounds' },
-  { url: '/images/football-practice.jpg', title: 'Football Practice' },
-  { url: '/images/athlete-sprint.jpg', title: 'Athlete Sprint' },
+  { url: '/images/AEROBICS.png', title: 'AEROBICS' },
+  { url: '/images/skating-certificates.png', title: 'Skating Certificates' },
+  { url: '/images/skating.png', title: 'Academy Grounds' },
+  { url: '/images/summer-crafts.png', title: 'Summer Crafts' },
+  { url: '/images/summer.jpg', title: 'Summer Crafts' },
   { url: '/images/team-strategy.jpg', title: 'Team Strategy' },
 ];
 

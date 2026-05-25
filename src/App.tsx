@@ -109,14 +109,14 @@ export default function App() {
                  path="/fees" 
                  element={isAuthenticated ? <StudentFees /> : <Navigate to="/login" replace />} 
                />
-               <Route 
-                 path="/students/archive" 
-                 element={isAuthenticated ? <StudentArchive /> : <Navigate to="/login" replace />} 
-               />
-               <Route 
-                 path="/students/list" 
-                 element={isAuthenticated ? <StudentArchive /> : <Navigate to="/login" replace />} 
-               />
+<Route 
+                  path="/students/archive" 
+                  element={isAuthenticated ? <StudentArchive isAdmin={isAuthenticated} /> : <Navigate to="/login" replace />} 
+                />
+                <Route 
+                  path="/students/list" 
+                  element={isAuthenticated ? <StudentArchive isAdmin={isAuthenticated} /> : <Navigate to="/login" replace />} 
+                />
                
                <Route path="*" element={<Navigate to="/" replace />} />
              </Routes>

@@ -19,3 +19,7 @@ declare module 'pdfjs-dist/build/pdf.mjs' {
 declare module 'pdfjs-dist' {
   export { getDocument } from 'pdfjs-dist/build/pdf.mjs';
 }
+
+interface ImportMeta {
+  readonly env: Record<string, string>;
+}
