@@ -3,12 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Sidebar } from './components/layout/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { Login } from './components/Login';
-import { StudentArchive } from './components/StudentModule/Students';
 import { StudentFees } from './components/StudentModule/StudentFees';
 import { SportsList } from './components/SportsModule/SportsList';
 import { StudentAttendance } from './components/AttendanceModule/StudentAttendance';
@@ -24,6 +23,8 @@ import { CourtBooking } from './components/CourtBooking';
 import { CourtBookingAdmin } from './components/Admin/CourtBookingAdmin';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
+
+const StudentArchive = lazy(() => import('./components/StudentModule/Students').then((module) => ({ default: module.StudentArchive })));
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -63,63 +64,65 @@ export default function App() {
             </button>
           </div>
            <AnimatePresence mode="wait">
-             <Routes>
-               {/* Public Routes */}
-               <Route path="/" element={<Dashboard isAdmin={isAuthenticated} />} />
-               <Route path="/sports" element={<SportsList isAdmin={isAuthenticated} />} />
-               <Route path="/summer-camp" element={<SummerCamp />} />
-               <Route path="/events" element={<UpcomingEvents isAdmin={isAuthenticated} />} />
-               <Route path="/schedule" element={<WeeklySchedule isAdmin={isAuthenticated} />} />
-               <Route path="/gallery" element={<Gallery />} />
-               <Route path="/court-booking" element={<CourtBooking isAdmin={isAuthenticated} />} />
-               <Route path="/login" element={!isAuthenticated ? <Login onLogin={() => handleLogin(true)} /> : <Navigate to="/" replace />} />
-               
-               {/* Admin Gateway */}
-<Route 
-                  path="/admin" 
-                  element={isAuthenticated ? <AdminPanel /> : <Navigate to="/login" replace />} 
-                />
-                <Route 
-                  path="/admin/court-bookings" 
-                  element={isAuthenticated ? <CourtBookingAdmin /> : <Navigate to="/login" replace />} 
-                />
-               
-               {/* Protected Admin Detail Routes */}
-               <Route 
-                 path="/attendance/coaches" 
-                 element={isAuthenticated ? <CoachAttendance /> : <Navigate to="/login" replace />} 
-               />
-               <Route 
-                 path="/attendance/students" 
-                 element={isAuthenticated ? <StudentAttendance /> : <Navigate to="/login" replace />} 
-               />
-               <Route 
-                 path="/coaches" 
-                 element={<CoachManagement isAdmin={isAuthenticated} />} 
-               />
-               <Route 
-                 path="/coaches/pay" 
-                 element={isAuthenticated ? <CoachPay /> : <Navigate to="/login" replace />} 
-               />
-               <Route 
-                 path="/settings" 
-                 element={isAuthenticated ? <Settings /> : <Navigate to="/login" replace />} 
-               />
-               <Route 
-                 path="/fees" 
-                 element={isAuthenticated ? <StudentFees /> : <Navigate to="/login" replace />} 
-               />
-<Route 
-                  path="/students/archive" 
-                  element={isAuthenticated ? <StudentArchive isAdmin={isAuthenticated} /> : <Navigate to="/login" replace />} 
-                />
-                <Route 
-                  path="/students/list" 
-                  element={isAuthenticated ? <StudentArchive isAdmin={isAuthenticated} /> : <Navigate to="/login" replace />} 
-                />
-               
-               <Route path="*" element={<Navigate to="/" replace />} />
-             </Routes>
+             <Suspense fallback={<div className="p-6 text-slate-500">Loading...</div>}>
+               <Routes>
+                 {/* Public Routes */}
+                 <Route path="/" element={<Dashboard isAdmin={isAuthenticated} />} />
+                 <Route path="/sports" element={<SportsList isAdmin={isAuthenticated} />} />
+                 <Route path="/summer-camp" element={<SummerCamp />} />
+                 <Route path="/events" element={<UpcomingEvents isAdmin={isAuthenticated} />} />
+                 <Route path="/schedule" element={<WeeklySchedule isAdmin={isAuthenticated} />} />
+                 <Route path="/gallery" element={<Gallery />} />
+                 <Route path="/court-booking" element={<CourtBooking isAdmin={isAuthenticated} />} />
+                 <Route path="/login" element={!isAuthenticated ? <Login onLogin={() => handleLogin(true)} /> : <Navigate to="/" replace />} />
+                 
+                 {/* Admin Gateway */}
+                 <Route 
+                   path="/admin" 
+                   element={isAuthenticated ? <AdminPanel /> : <Navigate to="/login" replace />} 
+                 />
+                 <Route 
+                   path="/admin/court-bookings" 
+                   element={isAuthenticated ? <CourtBookingAdmin /> : <Navigate to="/login" replace />} 
+                 />
+                 
+                 {/* Protected Admin Detail Routes */}
+                 <Route 
+                   path="/attendance/coaches" 
+                   element={isAuthenticated ? <CoachAttendance /> : <Navigate to="/login" replace />} 
+                 />
+                 <Route 
+                   path="/attendance/students" 
+                   element={isAuthenticated ? <StudentAttendance /> : <Navigate to="/login" replace />} 
+                 />
+                 <Route 
+                   path="/coaches" 
+                   element={<CoachManagement isAdmin={isAuthenticated} />} 
+                 />
+                 <Route 
+                   path="/coaches/pay" 
+                   element={isAuthenticated ? <CoachPay /> : <Navigate to="/login" replace />} 
+                 />
+                 <Route 
+                   path="/settings" 
+                   element={isAuthenticated ? <Settings /> : <Navigate to="/login" replace />} 
+                 />
+                 <Route 
+                   path="/fees" 
+                   element={isAuthenticated ? <StudentFees /> : <Navigate to="/login" replace />} 
+                 />
+                 <Route 
+                   path="/students/archive" 
+                   element={isAuthenticated ? <StudentArchive isAdmin={isAuthenticated} /> : <Navigate to="/login" replace />} 
+                 />
+                 <Route 
+                   path="/students/list" 
+                   element={isAuthenticated ? <StudentArchive isAdmin={isAuthenticated} /> : <Navigate to="/login" replace />} 
+                 />
+                 
+                 <Route path="*" element={<Navigate to="/" replace />} />
+               </Routes>
+             </Suspense>
            </AnimatePresence>
         </main>
       </div>

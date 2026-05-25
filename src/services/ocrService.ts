@@ -1,5 +1,3 @@
-import Tesseract from 'tesseract.js';
-
 export interface ExtractedField {
   value: string | null;
   confidence: number;
@@ -98,6 +96,7 @@ export const processImageOcr = async (file: File): Promise<OcrStudentData> => {
   for (const imageFile of imageFiles) {
     const imageUrl = URL.createObjectURL(imageFile);
     try {
+      const Tesseract = (await import('tesseract.js')).default;
       const result = await Tesseract.recognize(imageUrl, 'eng', {
         logger: (m) => console.log(m),
       });

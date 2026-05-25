@@ -106,7 +106,7 @@
   min-width: 44px;
 }
 
-@screen md {
+@media (min-width: 768px) {
   .mobile-button {
     min-height: auto;
     min-width: auto;
