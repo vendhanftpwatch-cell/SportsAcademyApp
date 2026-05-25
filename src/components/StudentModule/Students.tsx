@@ -12,6 +12,7 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showOcrModal, setShowOcrModal] = useState(false);
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrData, setOcrData] = useState<OcrStudentData | null>(null);
@@ -19,6 +20,7 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [editingStudent, setEditingStudent] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
     gender: '',
@@ -28,17 +30,25 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     dateEnrolled: '',
     parentName: ''
   });
+  const [addressHistory, setAddressHistory] = useState<string[]>([]);
 
   const fetchData = () => {
     setLoading(true);
     fetch('/api/students')
       .then(res => res.json())
       .then(data => {
-        setStudents(Array.isArray(data) ? data : []);
+        const studentArray = Array.isArray(data) ? data : [];
+        setStudents(studentArray);
+        // Update address history with unique addresses from fetched students
+        const addresses = [...new Set(studentArray
+          .map(student => student.address)
+          .filter(address => address && address.trim() !== ''))];
+        setAddressHistory(addresses);
       })
       .catch(error => {
         console.error('Failed to fetch students:', error);
         setStudents([]);
+        setAddressHistory([]);
       })
       .finally(() => {
         setLoading(false);
@@ -47,6 +57,19 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
 
   useEffect(() => {
     fetchData();
+  }, []);
+
+  // Refetch data when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const handleFileUpload = async (file: File) => {
@@ -174,23 +197,60 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     student.gender?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleOcrDataToForm = () => {
-    if (ocrData) {
-      setFormData({
-        name: ocrData.studentName.value || '',
-        gender: ocrData.gender.value || '',
-        address: ocrData.permanentAddress.value || '',
-        sportsSelected: ocrData.sportsSelected.value || '',
-        dateOfBirth: ocrData.dateOfBirth.value || '',
-        dateEnrolled: ocrData.dateEnrolled.value || '',
-        parentName: ocrData.parentName.value || ''
-      });
-    }
+  const openEditModal = (student) => {
+    setEditingStudent(student);
+    setFormData({
+      name: student.name,
+      gender: student.gender,
+      address: student.address,
+      sportsSelected: student.sportsSelected ? student.sportsSelected.join(', ') : '',
+      dateOfBirth: student.dateOfBirth ? student.dateOfBirth.split('T')[0] : '',
+      dateEnrolled: student.dateEnrolled ? student.dateEnrolled.split('T')[0] : '',
+      parentName: student.parentName
+    });
+    setShowEditModal(true);
   };
 
-  useEffect(() => {
-    handleOcrDataToForm();
-  }, [ocrData]);
+  const handleEditStudent = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/students/${editingStudent._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          gender: formData.gender,
+          address: formData.address,
+          sportsJoined: formData.sportsSelected ? formData.sportsSelected.split(',').map((s: string) => s.trim()) : [],
+          parentName: formData.parentName,
+          dateOfBirth: formData.dateOfBirth || undefined,
+          dateEnrolled: formData.dateEnrolled || undefined
+        })
+      });
+      if (res.ok) {
+        setShowEditModal(false);
+        setEditingStudent(null);
+        // Reset formData
+        setFormData({
+          name: '',
+          gender: '',
+          address: '',
+          sportsSelected: '',
+          dateOfBirth: '',
+          dateEnrolled: '',
+          parentName: ''
+        });
+        fetchData();
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        console.error("Failed to update student:", errorData);
+        alert(`Failed to update student: ${errorData.error || 'Unknown error'}${errorData.detail ? ' - ' + errorData.detail : ''}`);
+      }
+    } catch (error) {
+      console.error("Failed to update student:", error);
+      alert("Failed to update student: Network error");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -281,21 +341,22 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                     {new Date(student.dateJoined || student.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="flex gap-2">
-                  {isAdmin && (
-                    <>
-                      <button
-                        onClick={() => deleteStudent(student._id)}
-                        className="p-2 text-slate-300 hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                      <button className="p-2 text-slate-300 hover:text-primary hover:bg-violet-50 rounded-lg transition-all">
-                        <Edit2 size={16} />
-                      </button>
-                    </>
-                  )}
-                </div>
+              <div className="flex gap-2">
+                {isAdmin && (
+                  <>
+                    <button
+                      onClick={() => deleteStudent(student._id)}
+                      className="p-2 text-slate-300 hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                    <button className="p-2 text-slate-300 hover:text-primary hover:bg-violet-50 rounded-lg transition-all"
+                            onClick={() => openEditModal(student)}>
+                      <Edit2 size={16} />
+                    </button>
+                  </>
+                )}
+              </div>
               </div>
             </div>
           </motion.div>
@@ -354,19 +415,25 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                 <option value="Aerobics">Aerobics</option>
                 <option value="Carrom">Carrom</option>
               </select>
-              <input
-                type="text" placeholder="Parent's Name" required
-                value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})}
-                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-              />
-              <input
-                type="text" placeholder="Address" required
-                value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
-                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-              />
-              <button type="submit" className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
-                Confirm Registration
-              </button>
+               <input
+                 type="text" placeholder="Parent's Name" required
+                 value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})}
+                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+               />
+               <input
+                 type="text" placeholder="Address" required
+                 value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
+                 list="address-history"
+                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+               />
+               <datalist id="address-history">
+                 {addressHistory.map((address, index) => (
+                   <option key={index} value={address} />
+                 ))}
+               </datalist>
+               <button type="submit" className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                 Confirm Registration
+               </button>
             </form>
           </motion.div>
         </div>
@@ -452,118 +519,194 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
               </div>
             )}
 
-            {ocrData && (
-              <div className="space-y-4">
-                {previewUrl && (
-                  <div className="border rounded-xl p-4 max-h-48 overflow-hidden">
-                    <img src={previewUrl} alt="Preview" className="max-h-40 mx-auto" />
-                  </div>
-                )}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-500 mb-1">Student Name</label>
-                    <input
-                      type="text"
-                      value={ocrData.studentName.value || ''}
-                      readOnly
-                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-500 mb-1">Sports Selected</label>
-                    <input
-                      type="text"
-                      value={ocrData.sportsSelected.value || ''}
-                      readOnly
-                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-500 mb-1">Date of Birth</label>
-                    <input
-                      type="text"
-                      value={ocrData.dateOfBirth.value || ''}
-                      readOnly
-                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-500 mb-1">Gender</label>
-                    <input
-                      type="text"
-                      value={ocrData.gender.value || ''}
-                      readOnly
-                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-500 mb-1">Parent's Name</label>
-                    <input
-                      type="text"
-                      value={ocrData.parentName.value || ''}
-                      readOnly
-                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-500 mb-1">Contact Number</label>
-                    <input
-                      type="text"
-                      value={ocrData.contactNumber.value || ''}
-                      readOnly
-                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-500 mb-1">Permanent Address</label>
-                    <input
-                      type="text"
-                      value={ocrData.permanentAddress.value || ''}
-                      readOnly
-                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-500 mb-1">Date Enrolled</label>
-                    <input
-                      type="text"
-                      value={ocrData.dateEnrolled.value || ''}
-                      readOnly
-                      className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-4 justify-end mt-6">
-                  <button
-                    className="px-6 py-3 bg-slate-200 text-slate-700 rounded-xl font-bold"
-                    onClick={() => { setShowOcrModal(false); stopCamera(); }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="sporty-gradient text-white px-6 py-3 rounded-xl font-bold"
-                    onClick={() => {
-                      setFormData({
-                        name: ocrData.studentName.value || '',
-                        gender: ocrData.gender.value || '',
-                        address: ocrData.permanentAddress.value || '',
-                        sportsSelected: ocrData.sportsSelected.value || '',
-                        dateOfBirth: ocrData.dateOfBirth.value || '',
-                        dateEnrolled: ocrData.dateEnrolled.value || '',
-                        parentName: ocrData.parentName.value || ''
-                      });
-                      setShowOcrModal(false);
-                      setShowAddModal(true);
-                    }}
-                  >
-                    Save to Database
-                  </button>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      )}
-    </div>
-  );
-}
+             {ocrData && (
+               <div className="space-y-4">
+                 {previewUrl && (
+                   <div className="border rounded-xl p-4 max-h-48 overflow-hidden">
+                     <img src={previewUrl} alt="Preview" className="max-h-40 mx-auto" />
+                   </div>
+                 )}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div>
+                     <label className="block text-sm font-bold text-slate-500 mb-1">Student Name</label>
+                     <input
+                       type="text"
+                       value={ocrData.studentName.value || ''}
+                       readOnly
+                       className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-bold text-slate-500 mb-1">Sports Selected</label>
+                     <input
+                       type="text"
+                       value={ocrData.sportsSelected.value || ''}
+                       readOnly
+                       className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-bold text-slate-500 mb-1">Date of Birth</label>
+                     <input
+                       type="text"
+                       value={ocrData.dateOfBirth.value || ''}
+                       readOnly
+                       className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-bold text-slate-500 mb-1">Gender</label>
+                     <input
+                       type="text"
+                       value={ocrData.gender.value || ''}
+                       readOnly
+                       className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-bold text-slate-500 mb-1">Parent's Name</label>
+                     <input
+                       type="text"
+                       value={ocrData.parentName.value || ''}
+                       readOnly
+                       className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-bold text-slate-500 mb-1">Contact Number</label>
+                     <input
+                       type="text"
+                       value={ocrData.contactNumber.value || ''}
+                       readOnly
+                       className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-bold text-slate-500 mb-1">Permanent Address</label>
+                     <input
+                       type="text"
+                       value={ocrData.permanentAddress.value || ''}
+                       readOnly
+                       className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-bold text-slate-500 mb-1">Date Enrolled</label>
+                     <input
+                       type="text"
+                       value={ocrData.dateEnrolled.value || ''}
+                       readOnly
+                       className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold text-slate-800"
+                     />
+                   </div>
+                 </div>
+                 <div className="flex gap-4 justify-end mt-6">
+                   <button
+                     className="px-6 py-3 bg-slate-200 text-slate-700 rounded-xl font-bold"
+                     onClick={() => { setShowOcrModal(false); stopCamera(); }}
+                   >
+                     Cancel
+                   </button>
+                   <button
+                     className="sporty-gradient text-white px-6 py-3 rounded-xl font-bold"
+                     onClick={() => {
+                       setFormData({
+                         name: ocrData.studentName.value || '',
+                         gender: ocrData.gender.value || '',
+                         address: ocrData.permanentAddress.value || '',
+                         sportsSelected: ocrData.sportsSelected.value || '',
+                         dateOfBirth: ocrData.dateOfBirth.value || '',
+                         dateEnrolled: ocrData.dateEnrolled.value || '',
+                         parentName: ocrData.parentName.value || ''
+                       });
+                       setShowOcrModal(false);
+                       setShowAddModal(true);
+                     }}
+                   >
+                     Save to Database
+                   </button>
+                 </div>
+               </div>
+             )}
+           </motion.div>
+         </div>
+       )}
+
+       {/* Edit Modal */}
+       {showEditModal && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+           <div style={{ background: 'rgba(124, 58, 237, 0.08)' }} className="absolute inset-0" onClick={() => setShowEditModal(false)} />
+           <motion.div
+             initial={{ opacity: 0, scale: 0.95 }}
+             animate={{ opacity: 1, scale: 1 }}
+             className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 md:p-8"
+           >
+             <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-5 md:mb-6">Edit Student</h3>
+             <form onSubmit={handleEditStudent} className="space-y-4">
+               <input
+                 type="text" placeholder="Full Name" required
+                 value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+               />
+               <input
+                 type="date" placeholder="Date of Birth" required
+                 value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})}
+                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+               />
+               <input
+                 type="date" placeholder="Joined Date" required
+                 value={formData.dateEnrolled} onChange={e => setFormData({...formData, dateEnrolled: e.target.value})}
+                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+               />
+               <select
+                 value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}
+                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                 required
+               >
+                 <option value="">Select Gender</option>
+                 <option value="Male">Male</option>
+                 <option value="Female">Female</option>
+                 <option value="Other">Other</option>
+               </select>
+               <select
+                 value={formData.sportsSelected} onChange={e => setFormData({...formData, sportsSelected: e.target.value})}
+                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                 required
+               >
+                 <option value="">Select Sport</option>
+                 <option value="Skating">Skating</option>
+                 <option value="Karate">Karate</option>
+                 <option value="Shuttle">Shuttle</option>
+                 <option value="Boxing">Boxing</option>
+                 <option value="Yoga">Yoga</option>
+                 <option value="Chess">Chess</option>
+                 <option value="Silambam">Silambam</option>
+                 <option value="Aerobics">Aerobics</option>
+                 <option value="Carrom">Carrom</option>
+               </select>
+               <input
+                 type="text" placeholder="Parent's Name" required
+                 value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})}
+                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+               />
+               <input
+                 type="text" placeholder="Address" required
+                 value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
+                 list="address-history-edit"
+                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+               />
+               <datalist id="address-history-edit">
+                 {addressHistory.map((address, index) => (
+                   <option key={index} value={address} />
+                 ))}
+               </datalist>
+               <button type="submit" className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                 Update Student
+               </button>
+             </form>
+           </motion.div>
+         </div>
+       )}
+     </div>
+   );
+ }
