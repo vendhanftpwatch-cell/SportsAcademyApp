@@ -120,56 +120,148 @@ const getFilledFields = (data: OcrStudentData): number => {
 };
 
 const extractDataFromText = (text: string): OcrStudentData => {
-  const normalizedText = text.replace(/\s+/g, ' ');
+  // Normalize line endings and spaces for easier regex
+  const lines = text.split(/\r?\n/).map(l => l.trim());
+  const joined = lines.join(' ');
 
-  const studentNameMatch = normalizedText.match(/(?:student\s*name|name)\s*[:\\-]?\\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/i);
-  const studentName: ExtractedField = studentNameMatch 
-    ? { value: studentNameMatch[1].trim(), confidence: 90, lowConfidence: false }
-    : { value: null, confidence: 0, lowConfidence: true };
+  // Student Name
+  let studentName = null;
+  const nameLine = lines.find(l => l.match(/name.*applicant/i));
+  if (nameLine) {
+    const match = nameLine.match(/applicant.*?:\s*([A-Z\s]+)/i);
+    if (match) studentName = match[1].replace(/[^A-Z\s]/gi, '').trim();
+  }
+  if (!studentName) {
+    const match = joined.match(/name.*applicant.*?([A-Z][A-Z\s]+)/i);
+    if (match) studentName = match[1].replace(/[^A-Z\s]/gi, '').trim();
+  }
 
-  const sportsMatch = normalizedText.match(/(?:sports?\s*selected?|sport)\s*[:\\-]?\\s*([A-Za-z\s\/\\&]+)/i);
-  const sportsSelected: ExtractedField = sportsMatch 
-    ? { value: sportsMatch[1].trim(), confidence: 85, lowConfidence: false }
-    : { value: null, confidence: 0, lowConfidence: true };
+  // Sports Selected
+  let sportsSelected = null;
+  const sportsLine = lines.find(l => l.match(/sports.*selected/i));
+  if (sportsLine) {
+    // Find checked sports (look for X or tick or just the first word after the number)
+    const match = sportsLine.match(/selected.*?:?\s*([A-Za-z, ]+)/i);
+    if (match) sportsSelected = match[1].split(',')[0].trim();
+  }
+  // Fallback: look for checked sports in the form
+  if (!sportsSelected) {
+    const sportMatch = text.match(/Skating|Karate|Shuttle|Boxing|Yoga|Chess|Silambam|Aerobics|Carrom/i);
+    if (sportMatch) sportsSelected = sportMatch[0];
+  }
 
-  const dobMatch = normalizedText.match(/(?:date\s*of\s*birth|dob|birth\s*date)\s*[:\\-]?\\s*([\d\/\-\.]+)/i);
-  const dateOfBirth: ExtractedField = dobMatch 
-    ? { value: normalizeDate(dobMatch[1].trim()), confidence: 85, lowConfidence: false }
-    : { value: null, confidence: 0, lowConfidence: true };
+  // Date of Birth
+  let dateOfBirth = null;
+  const dobLine = lines.find(l => l.match(/date.*birth/i));
+  if (dobLine) {
+    const match = dobLine.match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/);
+    if (match) dateOfBirth = match[1];
+  }
 
-  const genderMatch = normalizedText.match(/(?:gender|sex)\s*[:\\-]?\\s*(male|female|other|m|f)/i);
-  const gender: ExtractedField = genderMatch 
-    ? { value: genderMatch[1].charAt(0).toUpperCase() + genderMatch[1].slice(1).toLowerCase(), confidence: 90, lowConfidence: false }
-    : { value: null, confidence: 0, lowConfidence: true };
+  // Gender
+  let gender = null;
+  const genderLine = lines.find(l => l.match(/gender/i));
+  if (genderLine) {
+    const match = genderLine.match(/gender.*?:?\s*([A-Za-z]+)/i);
+    if (match) gender = match[1];
+  }
+  if (!gender) {
+    const match = joined.match(/\b(female|male|m|f)\b/i);
+    if (match) gender = match[1];
+  }
 
-  const parentMatch = normalizedText.match(/(?:parent['']?\s*name|father['']?\s*name|guardian)\s*[:\\-]?\\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/i);
-  const parentName: ExtractedField = parentMatch 
-    ? { value: parentMatch[1].trim(), confidence: 85, lowConfidence: false }
-    : { value: null, confidence: 0, lowConfidence: true };
+  // Parent's Name
+  let parentName = null;
+  const parentLine = lines.find(l => l.match(/parent.*name/i));
+  if (parentLine) {
+    const match = parentLine.match(/parent.*name.*?:?\s*([A-Z\.\s,]+)/i);
+    if (match) parentName = match[1].replace(/[^A-Z\s\.,]/gi, '').trim();
+  }
+  if (!parentName) {
+    const match = joined.match(/parent.*name.*?([A-Z][A-Z\s,\.]+)/i);
+    if (match) parentName = match[1].replace(/[^A-Z\s\.,]/gi, '').trim();
+  }
 
-  const addressMatch = normalizedText.match(/(?:permanent\s*address|address)\s*[:\\-]?\\s*([\d\sA-Za-z\,\.]+)/i);
-  const permanentAddress: ExtractedField = addressMatch 
-    ? { value: addressMatch[1].trim(), confidence: 80, lowConfidence: false }
-    : { value: null, confidence: 0, lowConfidence: true };
+  // Permanent Address
+  let permanentAddress = null;
+  const addressLine = lines.find(l => l.match(/permanent.*address/i));
+  if (addressLine) {
+    const match = addressLine.match(/address.*?:?\s*([A-Z0-9\s,\-]+)/i);
+    if (match) permanentAddress = match[1].trim();
+  }
+  if (!permanentAddress) {
+    // Try to find address after parent name
+    const idx = lines.findIndex(l => l.match(/parent.*name/i));
+    if (idx !== -1 && lines[idx + 1]) {
+      permanentAddress = lines[idx + 1].replace(/[^A-Z0-9\s,\-]/gi, '').trim();
+    }
+  }
 
-  const phoneMatch = normalizedText.match(/(?:contact\s*no?|phone|mobile|number)\s*[:\\-]?\\s*([\d\s\+]+)/i);
-  const contactNumber: ExtractedField = phoneMatch 
-    ? { value: normalizePhoneNumber(phoneMatch[1]), confidence: 85, lowConfidence: false }
-    : { value: null, confidence: 0, lowConfidence: true };
+  // Contact Number
+  let contactNumber = null;
+  const contactLine = lines.find(l => l.match(/contact|phone|mobile/i));
+  if (contactLine) {
+    const match = contactLine.match(/(\d{10,})/);
+    if (match) contactNumber = match[1];
+  }
+  if (!contactNumber) {
+    const match = joined.match(/(\d{10,})/);
+    if (match) contactNumber = match[1];
+  }
 
-  const enrolledMatch = normalizedText.match(/(?:date\s*enrolled|enrollment\s*date|joined\s*date)\s*[:\\-]?\\s*([\d\/\-\.]+)/i);
-  const dateEnrolled: ExtractedField = enrolledMatch 
-    ? { value: normalizeDate(enrolledMatch[1].trim()), confidence: 85, lowConfidence: false }
-    : { value: null, confidence: 0, lowConfidence: true };
+  // Date Enrolled
+  let dateEnrolled = null;
+  const dateLine = lines.find(l => l.match(/date/i));
+  if (dateLine) {
+    const match = dateLine.match(/date.*?:?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+    if (match) dateEnrolled = match[1];
+  }
+  if (!dateEnrolled) {
+    // Try to find date at the top of the form
+    const match = text.match(/Date\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+    if (match) dateEnrolled = match[1];
+  }
 
   return {
-    studentName,
-    sportsSelected,
-    dateOfBirth,
-    gender,
-    parentName,
-    permanentAddress,
-    contactNumber,
-    dateEnrolled,
+    studentName: {
+      value: studentName || null,
+      confidence: studentName ? 95 : 0,
+      lowConfidence: !studentName
+    },
+    sportsSelected: {
+      value: sportsSelected || null,
+      confidence: sportsSelected ? 95 : 0,
+      lowConfidence: !sportsSelected
+    },
+    dateOfBirth: {
+      value: dateOfBirth ? normalizeDate(dateOfBirth) : null,
+      confidence: dateOfBirth ? 95 : 0,
+      lowConfidence: !dateOfBirth
+    },
+    gender: {
+      value: gender ? gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase() : null,
+      confidence: gender ? 95 : 0,
+      lowConfidence: !gender
+    },
+    parentName: {
+      value: parentName || null,
+      confidence: parentName ? 95 : 0,
+      lowConfidence: !parentName
+    },
+    permanentAddress: {
+      value: permanentAddress || null,
+      confidence: permanentAddress ? 90 : 0,
+      lowConfidence: !permanentAddress
+    },
+    contactNumber: {
+      value: contactNumber ? normalizePhoneNumber(contactNumber) : null,
+      confidence: contactNumber ? 95 : 0,
+      lowConfidence: !contactNumber
+    },
+    dateEnrolled: {
+      value: dateEnrolled ? normalizeDate(dateEnrolled) : null,
+      confidence: dateEnrolled ? 95 : 0,
+      lowConfidence: !dateEnrolled
+    }
   };
 };
