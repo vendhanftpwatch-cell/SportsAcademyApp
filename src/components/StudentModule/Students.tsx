@@ -11,6 +11,8 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
   const [students, setStudents] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showOcrModal, setShowOcrModal] = useState(false);
@@ -192,21 +194,31 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
     }
   };
 
-  const filteredStudents = students.filter((student: any) =>
-    student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.gender?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getStudentDisplayName = (student: any) =>
+    student?.name || [student?.firstName, student?.lastName].filter(Boolean).join(' ') || 'Unnamed Student';
 
-  const openEditModal = (student) => {
+  const getStudentSport = (student: any) =>
+    student?.sport || student?.sportsJoined?.[0] || 'Unassigned';
+
+  const filteredStudents = students.filter((student: any) => {
+    const term = searchTerm.toLowerCase();
+    const name = getStudentDisplayName(student).toLowerCase();
+    const sport = getStudentSport(student).toLowerCase();
+    const gender = (student.gender || '').toLowerCase();
+
+    return name.includes(term) || sport.includes(term) || gender.includes(term);
+  });
+
+  const openEditModal = (student: any) => {
     setEditingStudent(student);
     setFormData({
-      name: student.name,
-      gender: student.gender,
-      address: student.address,
-      sportsSelected: student.sportsSelected ? student.sportsSelected.join(', ') : '',
-      dateOfBirth: student.dateOfBirth ? student.dateOfBirth.split('T')[0] : '',
-      dateEnrolled: student.dateEnrolled ? student.dateEnrolled.split('T')[0] : '',
-      parentName: student.parentName
+      name: getStudentDisplayName(student),
+      gender: student.gender || '',
+      address: student.address || '',
+      sportsSelected: student.sportsJoined?.join(', ') || student.sport || '',
+      dateOfBirth: typeof student.dateOfBirth === 'string' ? student.dateOfBirth : student.dateOfBirth ? student.dateOfBirth.split('T')[0] : '',
+      dateEnrolled: student.dateEnrolled ? student.dateEnrolled.split('T')[0] : student.joiningDate ? student.joiningDate.split('T')[0] : '',
+      parentName: student.parentName || ''
     });
     setShowEditModal(true);
   };
@@ -297,70 +309,87 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
         {loading ? (
           [1, 2, 3].map(i => <div key={i} className="h-64 bento-card animate-pulse" />)
-        ) : filteredStudents.map((student) => (
-          <motion.div
-            key={student._id || student.id}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bento-card p-0 overflow-hidden group bento-card-hover shadow-sm"
-          >
-            <div className="p-6 md:p-8">
-              <div className="flex items-start justify-between mb-5 md:mb-6">
-                <div className="flex items-center gap-4 md:gap-5">
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-violet-50 p-1 border border-violet-100 shadow-inner">
-                    <img
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`}
-                      alt="avatar"
-                      className="w-full h-full object-cover rounded-xl"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-black text-lg md:text-xl text-slate-800 leading-tight">{student.name}</h3>
-                    <div className="flex gap-2 mt-2">
-                      <span className="px-3 py-1 bg-violet-50 text-violet-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-violet-100">
-                        {(student.sport || student.sportsJoined?.[0] || 'Unassigned')}
-                      </span>
+        ) : filteredStudents.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center shadow-sm">
+            <User size={36} className="text-slate-300 mb-4" />
+            <h3 className="text-lg font-black text-slate-800 mb-2">No students found</h3>
+            <p className="text-sm font-medium text-slate-500">
+              {searchTerm ? 'Try a different search term or clear the filter.' : 'Add a student to see the list here.'}
+            </p>
+          </div>
+        ) : filteredStudents.map((student) => {
+          const displayName = getStudentDisplayName(student);
+          const displaySport = getStudentSport(student);
+          const joinedDate = student.dateEnrolled || student.joiningDate;
+
+          return (
+            <motion.div
+              key={student._id || student.id}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bento-card p-0 overflow-hidden group bento-card-hover shadow-sm cursor-pointer"
+              onClick={() => { setSelectedStudent(student); setShowDetailModal(true); }}
+            >
+              <div className="p-6 md:p-8">
+                <div className="flex items-start justify-between mb-5 md:mb-6">
+                  <div className="flex items-center gap-4 md:gap-5">
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-violet-50 p-1 border border-violet-100 shadow-inner">
+                      <img
+                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${displayName}`}
+                        alt="avatar"
+                        className="w-full h-full object-cover rounded-xl"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-black text-lg md:text-xl text-slate-800 leading-tight">{displayName}</h3>
+                      <div className="flex gap-2 mt-2">
+                        <span className="px-3 py-1 bg-violet-50 text-violet-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-violet-100">
+                          {displaySport}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-3 md:space-y-4">
-                <div className="flex items-center gap-3 text-slate-500">
-                  <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-card-border">
-                    <User size={16} />
+                <div className="space-y-3 md:space-y-4">
+                  <div className="flex items-center gap-3 text-slate-500">
+                    <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-card-border">
+                      <User size={16} />
+                    </div>
+                    <span className="text-sm font-semibold">{student.parentName || 'N/A'}</span>
                   </div>
-                  <span className="text-sm font-semibold">{student.parentName || 'N/A'}</span>
                 </div>
-              </div>
 
-              <div className="mt-8 pt-6 border-t border-card-border flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Joining Date</p>
-                  <p className="text-sm font-semibold text-slate-600">
-                    {new Date(student.dateJoined || student.createdAt).toLocaleDateString()}
-                  </p>
+                <div className="mt-8 pt-6 border-t border-card-border flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Joining Date</p>
+                    <p className="text-sm font-semibold text-slate-600">
+                      {joinedDate ? new Date(joinedDate).toLocaleDateString() : 'N/A'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    {isAdmin && (
+                      <>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteStudent(student._id); }}
+                          className="p-2 text-slate-300 hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                        <button
+                          className="p-2 text-slate-300 hover:text-primary hover:bg-violet-50 rounded-lg transition-all"
+                          onClick={(e) => { e.stopPropagation(); openEditModal(student); }}
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              <div className="flex gap-2">
-                {isAdmin && (
-                  <>
-                    <button
-                      onClick={() => deleteStudent(student._id)}
-                      className="p-2 text-slate-300 hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                    <button className="p-2 text-slate-300 hover:text-primary hover:bg-violet-50 rounded-lg transition-all"
-                            onClick={() => openEditModal(student)}>
-                      <Edit2 size={16} />
-                    </button>
-                  </>
-                )}
               </div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Add Modal */}
@@ -375,22 +404,37 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
             <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-5 md:mb-6">Register New Student</h3>
             <form onSubmit={handleAddStudent} className="space-y-4">
               <input
-                type="text" placeholder="Full Name" required
-                value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                type="text"
+                placeholder="Full Name"
+                required
+                value={formData.name}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
               />
-              <input
-                type="date" placeholder="Date of Birth" required
-                value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})}
-                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-              />
-              <input
-                type="date" placeholder="Joined Date" required
-                value={formData.dateEnrolled} onChange={e => setFormData({...formData, dateEnrolled: e.target.value})}
-                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-              />
+
+              <div>
+                <label className="block text-sm font-bold text-slate-500 mb-1">Date of Birth</label>
+                <input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={e => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-500 mb-1">Joining Date</label>
+                <input
+                  type="date"
+                  value={formData.dateEnrolled}
+                  onChange={e => setFormData({ ...formData, dateEnrolled: e.target.value })}
+                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                />
+              </div>
+
               <select
-                value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}
+                value={formData.gender}
+                onChange={e => setFormData({ ...formData, gender: e.target.value })}
                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
                 required
               >
@@ -399,8 +443,10 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
               </select>
+
               <select
-                value={formData.sportsSelected} onChange={e => setFormData({...formData, sportsSelected: e.target.value})}
+                value={formData.sportsSelected}
+                onChange={e => setFormData({ ...formData, sportsSelected: e.target.value })}
                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
                 required
               >
@@ -415,25 +461,38 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                 <option value="Aerobics">Aerobics</option>
                 <option value="Carrom">Carrom</option>
               </select>
-               <input
-                 type="text" placeholder="Parent's Name" required
-                 value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})}
-                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-               />
-               <input
-                 type="text" placeholder="Address" required
-                 value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
-                 list="address-history"
-                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-               />
-               <datalist id="address-history">
-                 {addressHistory.map((address, index) => (
-                   <option key={index} value={address} />
-                 ))}
-               </datalist>
-               <button type="submit" className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
-                 Confirm Registration
-               </button>
+
+              <input
+                type="text"
+                placeholder="Parent's Name"
+                required
+                value={formData.parentName}
+                onChange={e => setFormData({ ...formData, parentName: e.target.value })}
+                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+              />
+
+              <input
+                type="text"
+                placeholder="Address"
+                required
+                value={formData.address}
+                onChange={e => setFormData({ ...formData, address: e.target.value })}
+                list="address-history"
+                className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+              />
+
+              <datalist id="address-history">
+                {addressHistory.map((address, index) => (
+                  <option key={index} value={address} />
+                ))}
+              </datalist>
+
+              <button
+                type="submit"
+                className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              >
+                Confirm Registration
+              </button>
             </form>
           </motion.div>
         </div>
@@ -642,23 +701,29 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
              className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 md:p-8"
            >
              <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-5 md:mb-6">Edit Student</h3>
-             <form onSubmit={handleEditStudent} className="space-y-4">
-               <input
-                 type="text" placeholder="Full Name" required
-                 value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-               />
-               <input
-                 type="date" placeholder="Date of Birth" required
-                 value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})}
-                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-               />
-               <input
-                 type="date" placeholder="Joined Date" required
-                 value={formData.dateEnrolled} onChange={e => setFormData({...formData, dateEnrolled: e.target.value})}
-                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-               />
-               <select
+<form onSubmit={handleEditStudent} className="space-y-4">
+                <input
+                  type="text" placeholder="Full Name" required
+                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                />
+                <div>
+                  <label className="block text-sm font-bold text-slate-500 mb-1">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})}
+                    className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-500 mb-1">Joining Date</label>
+                  <input
+                    type="date"
+                    value={formData.dateEnrolled} onChange={e => setFormData({...formData, dateEnrolled: e.target.value})}
+                    className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                  />
+                </div>
+                <select
                  value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}
                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
                  required
@@ -689,24 +754,88 @@ export function StudentArchive({ isAdmin = false }: StudentArchiveProps) {
                  value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})}
                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
                />
-               <input
-                 type="text" placeholder="Address" required
-                 value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
-                 list="address-history-edit"
-                 className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
-               />
-               <datalist id="address-history-edit">
-                 {addressHistory.map((address, index) => (
-                   <option key={index} value={address} />
-                 ))}
-               </datalist>
-               <button type="submit" className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
-                 Update Student
-               </button>
-             </form>
-           </motion.div>
-         </div>
-       )}
-     </div>
-   );
- }
+<input
+                  type="text" placeholder="Address" required
+                  value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})}
+                  list="address-history-edit"
+                  className="w-full h-12 bg-slate-50 border border-card-border rounded-xl px-4 font-semibold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-800"
+                />
+                <datalist id="address-history-edit">
+                  {addressHistory.map((address, index) => (
+                    <option key={index} value={address} />
+                  ))}
+                </datalist>
+                <button type="submit" className="w-full h-14 sporty-gradient text-white rounded-2xl font-black uppercase tracking-widest mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                  Update Student
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Student Detail Modal */}
+        {showDetailModal && selectedStudent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div style={{ background: 'rgba(124, 58, 237, 0.08)' }} className="absolute inset-0" onClick={() => setShowDetailModal(false)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl md:text-2xl font-black text-slate-800">Student Details</h3>
+                <button onClick={() => setShowDetailModal(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg">
+                  <X size={24} />
+                </button>
+              </div>
+              <div className="flex flex-col items-center mb-6">
+                <div className="w-24 h-24 rounded-2xl bg-violet-50 p-1 border border-violet-100 shadow-inner mb-4">
+                  <img
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${getStudentDisplayName(selectedStudent)}`}
+                    alt="avatar"
+                    className="w-full h-full object-cover rounded-xl"
+                  />
+                </div>
+                <h4 className="font-display font-black text-2xl text-slate-800">{getStudentDisplayName(selectedStudent)}</h4>
+                <span className="px-3 py-1 bg-violet-50 text-violet-600 text-[10px] font-black rounded-lg uppercase tracking-widest border border-violet-100 mt-2">
+                  {getStudentSport(selectedStudent)}
+                </span>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-1">Gender</p>
+                  <p className="text-base font-semibold text-slate-700">{selectedStudent.gender || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-1">Date of Birth</p>
+                  <p className="text-base font-semibold text-slate-700">{selectedStudent.dateOfBirth || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-1">Joining Date</p>
+                  <p className="text-base font-semibold text-slate-700">{selectedStudent.dateEnrolled || selectedStudent.joiningDate ? new Date(selectedStudent.dateEnrolled || selectedStudent.joiningDate).toLocaleDateString() : 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-1">Parent's Name</p>
+                  <p className="text-base font-semibold text-slate-700">{selectedStudent.parentName || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-1">Address</p>
+                  <p className="text-base font-semibold text-slate-700">{selectedStudent.address || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-1">Sports</p>
+                  <p className="text-base font-semibold text-slate-700">{(selectedStudent.sportsJoined || []).join(', ') || 'None'}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="w-full h-12 bg-slate-100 text-slate-700 rounded-xl font-bold mt-6 active:scale-[0.98] transition-all"
+              >
+                Close
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </div>
+    );
+  }
